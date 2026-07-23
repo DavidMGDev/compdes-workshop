@@ -68,7 +68,7 @@
 Taller de Seguridad de Agentes MCP/RAG · COMPDES 2026</p>
 
 <div class="box warn">
-<p><strong>Su llave tiene presupuesto limitado.</strong> Cada asistente dispone de aproximadamente <strong>US$1.10</strong>. El presupuesto se comparte entre los 5 integrantes de su grupo (US$5.50 por grupo). Si un integrante consume de más, afecta a los otros cuatro. Use los modelos económicos que se indican abajo y evite bucles infinitos.</p>
+<p><strong>Su llave tiene presupuesto limitado.</strong> Cada asistente dispone de aproximadamente <strong>US$1.10</strong>. El presupuesto se comparte entre los 5 integrantes de su grupo (US$5.50 por grupo). Si un integrante consume de más, afecta a los otros cuatro. El modelo ya viene fijado en el económico; solo evite bucles infinitos.</p>
 </div>
 
 <h2><span class="step">1</span>Reciba y guarde su llave</h2>
@@ -89,7 +89,7 @@ Taller de Seguridad de Agentes MCP/RAG · COMPDES 2026</p>
 
 <pre><code>OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
 OPENAI_API_KEY=AQ.Ab8RN6...su-llave-aquí
-AGENT_MODEL=gemini-2.5-flash-lite
+AGENT_MODEL=gemini-3.5-flash-lite
 
 POSTGRES_USER=onyx_app
 POSTGRES_PASSWORD=app_password_123
@@ -99,26 +99,18 @@ POSTGRES_PORT=5433</code></pre>
 
 <p>Usamos el <strong>endpoint compatible con OpenAI</strong> de Google. Así todo el código del taller funciona sin cambios: solo cambian esas tres primeras variables.</p>
 
-<h3>¿Cuál modelo debo usar?</h3>
+<h3>El modelo ya está fijado</h3>
 
-<div class="wrap">
-<table>
-  <tr><th>Modelo</th><th>Costo por 1M tokens<br>(entrada / salida)</th><th>Cuándo usarlo</th></tr>
-  <tr>
-    <td><code>gemini-2.5-flash-lite</code></td>
-    <td>$0.10 / $0.40</td>
-    <td><strong>Predeterminado.</strong> Suficiente para toda la Hora 1. Con US$1.10 rinde muchísimo.</td>
-  </tr>
-  <tr>
-    <td><code>gemini-3.5-flash</code></td>
-    <td>$1.50 / $9.00</td>
-    <td>Solo si necesita mejor razonamiento. <strong>15× más caro</strong>: agota su presupuesto rápido.</td>
-  </tr>
-</table>
-</div>
+<p>Todo el taller usa un único modelo: <code>gemini-3.5-flash-lite</code>
+($0.30 entrada / $2.50 salida por 1M tokens). Es el modelo 3.5-class más
+económico de Google y está afinado para flujos con herramientas, que es
+justo lo que hace este agente. <strong>No hay que elegir nada</strong>: ya
+viene puesto en el <code>.env</code>.</p>
 
 <div class="box warn">
-<p><strong>Corrección al manual.</strong> El manual menciona el modelo <code>gemini-3-flash</code>. Ese identificador <strong>no existe</strong> y devuelve error 404. Si lo necesita, el nombre correcto es <code>gemini-3-flash-preview</code>. Para la Hora 1 no hace falta.</p>
+<p><strong>Nota.</strong> El manual original mencionaba <code>gemini-3-flash</code>;
+ese identificador <strong>no existe</strong> (da error 404). Está reemplazado
+en todas partes por <code>gemini-3.5-flash-lite</code>.</p>
 </div>
 
 <h2><span class="step">3</span>Compruebe que la llave funciona</h2>
@@ -131,7 +123,7 @@ POSTGRES_PORT=5433</code></pre>
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gemini-2.5-flash-lite",
+    "model": "gemini-3.5-flash-lite",
     "messages": [{"role": "user", "content": "Responde solo: listo"}]
   }'</code></pre>
 
@@ -178,7 +170,7 @@ print(resp.choices[0].message.content)</code></pre>
   <tr>
     <td><code>404</code> modelo no encontrado</td>
     <td>Identificador de modelo incorrecto.</td>
-    <td>Revise <code>AGENT_MODEL</code> contra la tabla de arriba.</td>
+    <td>Confirme que <code>AGENT_MODEL</code> es <code>gemini-3.5-flash-lite</code> en el <code>.env</code>.</td>
   </tr>
 </table>
 </div>
@@ -194,7 +186,7 @@ print(resp.choices[0].message.content)</code></pre>
     <ul>
       <li><strong>Base URL:</strong> <code>https://generativelanguage.googleapis.com/v1beta/openai/</code></li>
       <li><strong>API Key:</strong> su llave <code>AQ.Ab8RN6...</code></li>
-      <li><strong>Model name:</strong> <code>gemini-2.5-flash-lite</code></li>
+      <li><strong>Model name:</strong> <code>gemini-3.5-flash-lite</code></li>
     </ul>
   </li>
   <li>Guarde y lance la pregunta de negocio del manual:
@@ -225,7 +217,7 @@ echo $AGENT_MODEL
 # Windows PowerShell
 $env:AGENT_MODEL</code></pre>
 
-<p>Debe imprimir <code>gemini-2.5-flash-lite</code>. Con eso, el agente del apartado 1B ya puede arrancar.</p>
+<p>Debe imprimir <code>gemini-3.5-flash-lite</code>. Con eso, el agente del apartado 1B ya puede arrancar.</p>
 
 <h2><span class="step">6</span>Cuide su presupuesto</h2>
 

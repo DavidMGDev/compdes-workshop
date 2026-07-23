@@ -93,8 +93,8 @@ pip install garak
 
 ```bash
 # Terminal 1 — wrapper con el modelo barato:
-#   Linux/macOS:  AGENT_MODEL=gemini-2.5-flash-lite python target/agent/http_wrapper.py
-#   Windows PS:    $env:AGENT_MODEL="gemini-2.5-flash-lite"; python target/agent/http_wrapper.py
+#   Linux/macOS:  AGENT_MODEL=gemini-3.5-flash-lite python target/agent/http_wrapper.py
+#   Windows PS:    $env:AGENT_MODEL="gemini-3.5-flash-lite"; python target/agent/http_wrapper.py
 
 # Terminal 2 — Garak ACOTADO (evita gastar de más):
 python -m garak --model_type rest -G 2_5_garak_config.json --probes promptinject --generations 1

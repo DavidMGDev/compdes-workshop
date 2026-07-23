@@ -31,12 +31,32 @@ from mcp.client.stdio import stdio_client
 sys.path.insert(0, os.path.dirname(__file__))
 import rag  # noqa: E402
 
+
+def _cargar_env():
+    """Carga el .env de la raíz del repo SIN dependencias externas.
+    Así `python target/agent/agent.py` funciona aunque el usuario no haya
+    exportado las variables a mano en su terminal. Las variables ya presentes
+    en el entorno real tienen prioridad (setdefault)."""
+    raiz = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    ruta = os.path.join(raiz, ".env")
+    if not os.path.exists(ruta):
+        return
+    with open(ruta, encoding="utf-8") as f:
+        for linea in f:
+            linea = linea.strip()
+            if linea and not linea.startswith("#") and "=" in linea:
+                k, _, v = linea.partition("=")
+                os.environ.setdefault(k.strip(), v.strip())
+
+
+_cargar_env()
+
 # Cliente OpenAI apuntando al endpoint compatible de Google (ver .env).
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     base_url=os.getenv("OPENAI_BASE_URL"),
 )
-MODEL = os.getenv("AGENT_MODEL", "gemini-2.5-flash-lite")
+MODEL = os.getenv("AGENT_MODEL", "gemini-3.5-flash-lite")
 
 SYSTEM = (
     "Usted es el asistente de Distribuidora Central. Ayuda con inventario, "

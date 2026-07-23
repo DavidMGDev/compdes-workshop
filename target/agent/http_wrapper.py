@@ -13,8 +13,8 @@ USO:
     python target/agent/http_wrapper.py
 
     # Para forzar el modelo barato en Garak (alto volumen), relance así:
-    #   Linux/macOS:  AGENT_MODEL=gemini-2.5-flash-lite python target/agent/http_wrapper.py
-    #   Windows PS:    $env:AGENT_MODEL="gemini-2.5-flash-lite"; python target/agent/http_wrapper.py
+    #   Linux/macOS:  AGENT_MODEL=gemini-3.5-flash-lite python target/agent/http_wrapper.py
+    #   Windows PS:    $env:AGENT_MODEL="gemini-3.5-flash-lite"; python target/agent/http_wrapper.py
 
 Contrato HTTP (lo que esperan las herramientas):
     POST /chat   {"pregunta": "..."}      -> {"respuesta": "..."}

@@ -46,7 +46,7 @@ def main():
     cargar_env()
     base = os.environ.get("OPENAI_BASE_URL", "").rstrip("/")
     key = os.environ.get("OPENAI_API_KEY", "")
-    modelo = os.environ.get("AGENT_MODEL", "gemini-2.5-flash-lite")
+    modelo = os.environ.get("AGENT_MODEL", "gemini-3.5-flash-lite")
 
     # --- Validaciones antes de gastar una llamada -------------------------
     if not key or key == "PEGUE_SU_LLAVE_AQUI":

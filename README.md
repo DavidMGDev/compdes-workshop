@@ -98,6 +98,8 @@ cd target && docker compose down -v      # apaga y borra la base de datos
 
 ## Nota sobre modelos
 
-Por defecto usamos **`gemini-2.5-flash-lite`** (el más económico). El manual
-original mencionaba `gemini-3-flash`, un id que **no existe** (da error 404).
-Detalles y precios reales en [`docs/PRESUPUESTO.md`](docs/PRESUPUESTO.md).
+Todo el taller usa un único modelo, ya fijado en el `.env`:
+**`gemini-3.5-flash-lite`** ($0.30/$2.50 por 1M tokens), el 3.5-class más
+económico de Google, afinado para uso de herramientas. No hay que elegir nada.
+El manual original mencionaba `gemini-3-flash`, un id que **no existe** (error
+404). Detalles en [`docs/PRESUPUESTO.md`](docs/PRESUPUESTO.md).

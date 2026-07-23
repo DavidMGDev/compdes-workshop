@@ -16,23 +16,28 @@ Esto es una ventaja: el tope es estructural, sin retraso ni cargos sorpresa.
 
 ---
 
-## Modelos disponibles (precios reales, por 1M de tokens)
+## Un solo modelo, fijo para todo el taller
 
-| Modelo | Entrada | Salida | Uso recomendado |
+Todo el proyecto usa **`gemini-3.5-flash-lite`**. No hay elección de modelo:
+está fijado en el `.env` y calibrado en todas las guías. Es el modelo 3.5-class
+más económico de Google y está afinado para flujos "agénticos" (uso de
+herramientas), justo lo que hace este taller.
+
+Precios de referencia de la familia (por 1M de tokens), según el anuncio de
+Google de julio 2026:
+
+| Modelo | Entrada | Salida | Nota |
 |---|---|---|---|
-| `gemini-2.5-flash-lite` | $0.10 | $0.40 | **Por defecto.** Barato, con *function calling*. |
-| `gemini-2.5-flash` | $0.30 | $2.50 | Más capaz si un lab lo necesita. |
-| `gemini-3.5-flash` | $1.50 | $9.00 | El más caro. Solo si hace falta razonamiento fuerte. |
+| **`gemini-3.5-flash-lite`** | **$0.30** | **$2.50** | **El que usamos.** El 3.5-class más barato. |
+| `gemini-3.6-flash` | $1.50 | $7.50 | Workhorse, más caro. No lo usamos. |
+| `gemini-3.5-flash-cyber` | (no publicado) | (no publicado) | Especializado en ciberseguridad. |
 
 > **Corrección al manual original.** El manual usaba `gemini-3-flash` (Apéndice D
-> y Lab 2.5). **Ese identificador no existe** y devuelve `404`. Si necesita la
-> familia 3, el id real es `gemini-3-flash-preview`. Para todo el taller,
-> `gemini-2.5-flash-lite` es suficiente y el más barato.
-
-Cambiar de modelo = una línea en `.env`:
-```
-AGENT_MODEL=gemini-2.5-flash-lite
-```
+> y Lab 2.5). **Ese identificador no existe** y devuelve `404`. Está reemplazado
+> por `gemini-3.5-flash-lite` en todo el proyecto.
+>
+> Nota: existe un `gemini-2.5-flash-lite` aún más barato ($0.10/$0.40), pero el
+> 3.5-lite es el afinado para uso de herramientas y es el que el taller espera.
 
 ---
 
@@ -66,4 +71,4 @@ cuenta de facturación de Google):
   probes (`--probes promptinject`) y `--generations 1`. Sin eso, Garak puede
   lanzar miles de prompts.
 - **Historiales cortos.** Cada llamada reenvía toda la conversación.
-- **Pruebe con `flash-lite`** y suba de modelo solo si el flujo ya funciona.
+- **No cambie de modelo.** Todo está calibrado a `gemini-3.5-flash-lite`.

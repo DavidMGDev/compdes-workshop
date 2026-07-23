@@ -11,7 +11,15 @@ USO:
 Crea target/policies/*.pdf. Ejecútelo una vez antes de arrancar el agente.
 """
 import os
+import sys
+
 from reportlab.pdfgen import canvas
+
+# UTF-8 seguro en la consola de Windows (evita UnicodeEncodeError con acentos).
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 # Carpeta de salida (relativa a la raíz del repo). La creamos si no existe.
 DESTINO = os.path.join(os.path.dirname(__file__), "policies")
@@ -27,7 +35,7 @@ def pdf(nombre, lineas):
         c.drawString(50, y, linea)
         y -= 20                   # bajamos 20 puntos por línea
     c.save()
-    print(f"  ✓ {ruta}")
+    print(f"  [OK] {ruta}")
 
 
 print("Generando PDFs de política...")

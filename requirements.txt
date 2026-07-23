@@ -6,6 +6,9 @@
 openai>=1.30
 mcp>=1.2
 pydantic>=2.7
+# psycopg2-binary trae el driver de Postgres ya compilado (sin necesitar
+# compilador ni libpq en la máquina del asistente — clave en Windows).
+psycopg2-binary>=2.9
 pdfplumber>=0.11
 reportlab>=4.0
 sentence-transformers>=3.0

@@ -15,7 +15,8 @@ __pycache__/
 *.pyc
 
 # === Artefactos generados en tiempo de ejecución ===
-target/policies/*.pdf      # los PDFs los genera make_policies.py
+# Los PDFs los genera make_policies.py; no se versionan.
+target/policies/*.pdf
 *.log
 
 # === Basura del sistema operativo ===
