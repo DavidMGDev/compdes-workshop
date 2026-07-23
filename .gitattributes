@@ -1,0 +1,10 @@
+# Los scripts de shell DEBEN tener finales de línea LF, o fallan en Linux/macOS
+# con "bad interpreter: /bin/bash^M". Esto lo fuerza sin importar el SO de quien
+# haga commit.
+*.sh   text eol=lf
+
+# Los .ps1 son de Windows: CRLF les va bien.
+*.ps1  text eol=crlf
+
+# El resto: normalización automática de finales de línea.
+*      text=auto

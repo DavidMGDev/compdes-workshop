@@ -1,0 +1,17 @@
+# Dependencias base del taller (Hora 1 y labs manuales).
+# PyRIT y Garak van en SUS PROPIOS entornos virtuales (ver docs/SETUP.md):
+# tienen conflictos de dependencias con estas y entre sí.
+#
+# Versiones fijadas al piso que se probó; «>=» permite parches menores.
+openai>=1.30
+mcp>=1.2
+pydantic>=2.7
+pdfplumber>=0.11
+reportlab>=4.0
+sentence-transformers>=3.0
+numpy>=1.26
+requests>=2.31
+
+# Wrapper HTTP del agente (necesario para PyRIT/Garak/Promptfoo en Horas 2-3).
+fastapi>=0.110
+uvicorn>=0.29

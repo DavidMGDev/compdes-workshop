@@ -1,0 +1,24 @@
+# === SECRETOS — nunca subir a GitHub ===
+# El .env contiene la llave API. keys.csv contiene las 21 llaves.
+# Si esto se sube por accidente, hay que revocar TODAS las llaves.
+.env
+.env.local
+keys.csv
+*.key
+
+# === Entornos virtuales de Python ===
+.venv/
+.venv-pyrit/
+.venv-garak/
+venv/
+__pycache__/
+*.pyc
+
+# === Artefactos generados en tiempo de ejecución ===
+target/policies/*.pdf      # los PDFs los genera make_policies.py
+*.log
+
+# === Basura del sistema operativo ===
+.DS_Store
+Thumbs.db
+desktop.ini

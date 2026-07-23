@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de la llave API — Parte 1 · COMPDES 2026</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5c5c5c; --line: #e2e2e2;
+    --code-bg: #f6f7f9; --accent: #1a56b0; --warn-bg: #fff8e6; --warn-line: #e0a800;
+    --ok-bg: #eef8f0; --ok-line: #2e7d43; --bad-bg: #fdf0ef; --bad-line: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c; --fg: #e6e6e6; --muted: #a0a0a0; --line: #30343a;
+      --code-bg: #1e2126; --accent: #7aa7ea; --warn-bg: #2b2410; --warn-line: #b58900;
+      --ok-bg: #14251a; --ok-line: #4caf72; --bad-bg: #2a1614; --bad-line: #e06c5b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); margin: 0 auto; padding: 2rem 1.25rem 5rem;
+    max-width: 820px; line-height: 1.65;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .3rem; }
+  h2 {
+    font-size: 1.25rem; margin: 2.8rem 0 .8rem; padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+  }
+  h3 { font-size: 1.02rem; margin: 1.6rem 0 .5rem; }
+  .sub { color: var(--muted); margin: 0 0 2rem; font-size: 1.02rem; }
+  code {
+    background: var(--code-bg); padding: .12em .38em; border-radius: 4px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .89em;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 7px;
+    padding: .9rem 1rem; overflow-x: auto; font-size: .87rem; line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .box { border-left: 4px solid; border-radius: 0 6px 6px 0; padding: .85rem 1.1rem; margin: 1.2rem 0; }
+  .warn { background: var(--warn-bg); border-color: var(--warn-line); }
+  .ok   { background: var(--ok-bg);   border-color: var(--ok-line); }
+  .bad  { background: var(--bad-bg);  border-color: var(--bad-line); }
+  .box p:first-child { margin-top: 0; } .box p:last-child { margin-bottom: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1.1rem 0; font-size: .93rem; }
+  th, td { border: 1px solid var(--line); padding: .5rem .7rem; text-align: left; }
+  th { background: var(--code-bg); font-weight: 600; }
+  .step {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--accent);
+    color: #fff; font-size: .88rem; font-weight: 700; margin-right: .5rem; flex: none;
+  }
+  .wrap { overflow-x: auto; }
+  kbd {
+    background: var(--code-bg); border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 4px; padding: .05em .4em; font-size: .85em;
+  }
+  a { color: var(--accent); }
+  footer { margin-top: 3.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+</style>
+</head>
+<body>
+
+<h1>Cómo usar su llave API</h1>
+<p class="sub"><strong>Parte 1 — Hora 1: Construir <em>Distribuidora Central</em></strong><br>
+Taller de Seguridad de Agentes MCP/RAG · COMPDES 2026</p>
+
+<div class="box warn">
+<p><strong>Su llave tiene presupuesto limitado.</strong> Cada asistente dispone de aproximadamente <strong>US$1.10</strong>. El presupuesto se comparte entre los 5 integrantes de su grupo (US$5.50 por grupo). Si un integrante consume de más, afecta a los otros cuatro. Use los modelos económicos que se indican abajo y evite bucles infinitos.</p>
+</div>
+
+<h2><span class="step">1</span>Reciba y guarde su llave</h2>
+
+<p>El tutor le entregará una llave con este formato:</p>
+
+<pre><code>AQ.Ab8RN6xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+
+<p>Es una llave moderna de Google AI Studio (empieza con <code>AQ.</code>) y está restringida: <strong>solo</strong> funciona con la API de Gemini. No sirve para ningún otro servicio de Google.</p>
+
+<div class="box bad">
+<p><strong>No la publique.</strong> No la suba a GitHub, no la pegue en capturas de pantalla, no la comparta en el chat del evento. Si la expone, avísele al tutor para revocarla.</p>
+</div>
+
+<h2><span class="step">2</span>Colóquela en el archivo <code>.env</code></h2>
+
+<p>En la raíz de su laboratorio (<code>~/compdes-lab</code>), cree o edite el archivo <code>.env</code>:</p>
+
+<pre><code>OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+OPENAI_API_KEY=AQ.Ab8RN6...su-llave-aquí
+AGENT_MODEL=gemini-2.5-flash-lite
+
+POSTGRES_USER=onyx_app
+POSTGRES_PASSWORD=app_password_123
+POSTGRES_DB=distribuidora
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5433</code></pre>
+
+<p>Usamos el <strong>endpoint compatible con OpenAI</strong> de Google. Así todo el código del taller funciona sin cambios: solo cambian esas tres primeras variables.</p>
+
+<h3>¿Cuál modelo debo usar?</h3>
+
+<div class="wrap">
+<table>
+  <tr><th>Modelo</th><th>Costo por 1M tokens<br>(entrada / salida)</th><th>Cuándo usarlo</th></tr>
+  <tr>
+    <td><code>gemini-2.5-flash-lite</code></td>
+    <td>$0.10 / $0.40</td>
+    <td><strong>Predeterminado.</strong> Suficiente para toda la Hora 1. Con US$1.10 rinde muchísimo.</td>
+  </tr>
+  <tr>
+    <td><code>gemini-3.5-flash</code></td>
+    <td>$1.50 / $9.00</td>
+    <td>Solo si necesita mejor razonamiento. <strong>15× más caro</strong>: agota su presupuesto rápido.</td>
+  </tr>
+</table>
+</div>
+
+<div class="box warn">
+<p><strong>Corrección al manual.</strong> El manual menciona el modelo <code>gemini-3-flash</code>. Ese identificador <strong>no existe</strong> y devuelve error 404. Si lo necesita, el nombre correcto es <code>gemini-3-flash-preview</code>. Para la Hora 1 no hace falta.</p>
+</div>
+
+<h2><span class="step">3</span>Compruebe que la llave funciona</h2>
+
+<p>Antes de construir nada, confirme que su llave responde. Elija una opción:</p>
+
+<h3>Opción A — desde la terminal (curl)</h3>
+
+<pre><code>curl https://generativelanguage.googleapis.com/v1beta/openai/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-2.5-flash-lite",
+    "messages": [{"role": "user", "content": "Responde solo: listo"}]
+  }'</code></pre>
+
+<h3>Opción B — desde Python</h3>
+
+<pre><code>import os
+from openai import OpenAI
+
+client = OpenAI(
+    base_url=os.environ["OPENAI_BASE_URL"],
+    api_key=os.environ["OPENAI_API_KEY"],
+)
+
+resp = client.chat.completions.create(
+    model=os.environ["AGENT_MODEL"],
+    messages=[{"role": "user", "content": "Responde solo: listo"}],
+)
+print(resp.choices[0].message.content)</code></pre>
+
+<div class="box ok">
+<p><strong>Resultado esperado:</strong> el modelo responde <code>listo</code>. Si lo ve, su llave está operativa y puede continuar.</p>
+</div>
+
+<h3>Si algo falla</h3>
+
+<div class="wrap">
+<table>
+  <tr><th>Error</th><th>Significado</th><th>Qué hacer</th></tr>
+  <tr>
+    <td><code>401 UNAUTHENTICATED</code></td>
+    <td>La llave está mal copiada o incompleta.</td>
+    <td>Cópiela de nuevo, completa, sin espacios ni saltos de línea.</td>
+  </tr>
+  <tr>
+    <td><code>429 RESOURCE_EXHAUSTED</code><br><span style="color:var(--muted)">«prepayment credits are depleted»</span></td>
+    <td>Se agotó el presupuesto del grupo.</td>
+    <td>Avise al tutor. No es culpa de su código.</td>
+  </tr>
+  <tr>
+    <td><code>429</code> por límite de tasa</td>
+    <td>Demasiadas peticiones por minuto.</td>
+    <td>Espere unos segundos y reintente.</td>
+  </tr>
+  <tr>
+    <td><code>404</code> modelo no encontrado</td>
+    <td>Identificador de modelo incorrecto.</td>
+    <td>Revise <code>AGENT_MODEL</code> contra la tabla de arriba.</td>
+  </tr>
+</table>
+</div>
+
+<h2><span class="step">4</span>Use la llave en Onyx Lite (vitrina 1A)</h2>
+
+<p>Tras instalar Onyx Lite y abrir <code>http://localhost:3000</code>:</p>
+
+<ol>
+  <li>Vaya a <strong>Settings → LLM</strong>.</li>
+  <li>Agregue un proveedor de tipo <strong>OpenAI-compatible</strong> (no «Google», porque usamos el endpoint compatible).</li>
+  <li>Complete los campos:
+    <ul>
+      <li><strong>Base URL:</strong> <code>https://generativelanguage.googleapis.com/v1beta/openai/</code></li>
+      <li><strong>API Key:</strong> su llave <code>AQ.Ab8RN6...</code></li>
+      <li><strong>Model name:</strong> <code>gemini-2.5-flash-lite</code></li>
+    </ul>
+  </li>
+  <li>Guarde y lance la pregunta de negocio del manual:
+    <br><em>«¿Cuál es el plazo máximo de crédito que podemos otorgar a un cliente nuevo según nuestra política?»</em></li>
+</ol>
+
+<p>El agente debe responder <strong>citando el PDF</strong> que usted ingirió. Ese es el gancho de la Hora 1.</p>
+
+<h2><span class="step">5</span>Use la llave en el objetivo controlable (1B)</h2>
+
+<p>El agente en Python lee las variables del <code>.env</code>. Cárguelas antes de ejecutarlo:</p>
+
+<pre><code># Linux / macOS
+set -a && source ~/compdes-lab/.env && set +a
+
+# Windows PowerShell
+Get-Content "$HOME\compdes-lab\.env" | ForEach-Object {
+  if ($_ -match '^\s*([^#][^=]*)=(.*)$') {
+    [Environment]::SetEnvironmentVariable($Matches[1].Trim(), $Matches[2].Trim(), "Process")
+  }
+}</code></pre>
+
+<p>Verifique que quedaron cargadas:</p>
+
+<pre><code># Linux / macOS
+echo $AGENT_MODEL
+
+# Windows PowerShell
+$env:AGENT_MODEL</code></pre>
+
+<p>Debe imprimir <code>gemini-2.5-flash-lite</code>. Con eso, el agente del apartado 1B ya puede arrancar.</p>
+
+<h2><span class="step">6</span>Cuide su presupuesto</h2>
+
+<ul>
+  <li><strong>No deje bucles corriendo.</strong> Un <code>while</code> sin freno agota los US$5.50 del grupo en minutos.</li>
+  <li><strong>Historiales cortos.</strong> Cada mensaje reenvía toda la conversación; si crece, cada llamada cuesta más.</li>
+  <li><strong>Pruebe con <code>flash-lite</code>.</strong> Cambie a un modelo caro solo cuando el flujo ya funcione.</li>
+  <li><strong>El corte es automático.</strong> Al agotarse el crédito, la llave deja de responder con error 429. No hay cargos sorpresa.</li>
+</ul>
+
+<div class="box ok">
+<p><strong>Fin de la Parte 1.</strong> Al llegar aquí usted debe tener: la llave verificada, Onyx Lite respondiendo con citas de sus PDFs, y el objetivo controlable listo para atacar en la Hora 2.</p>
+</div>
+
+<footer>
+COMPDES 2026 · Taller de Seguridad de Agentes MCP/RAG para PyMEs<br>
+Parte 1 de 3 — Hora 1: Construir. Las Partes 2 (Romper) y 3 (Blindar) se entregan por separado.
+</footer>
+
+</body>
+</html>

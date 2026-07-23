@@ -1,0 +1,33 @@
+# =============================================================================
+#  docker-compose.yml — Base de datos del objetivo controlable
+# =============================================================================
+#  Levanta un PostgreSQL con los datos de Distribuidora Central ya sembrados.
+#
+#  USO:
+#     cd target
+#     docker compose up -d          # levantar en segundo plano
+#     docker compose down -v        # apagar y BORRAR datos (limpieza)
+#
+#  El puerto del host es 5433 (no el 5432 estándar) para no chocar con Onyx
+#  ni con cualquier Postgres que ya tenga instalado.
+# =============================================================================
+services:
+  db:
+    image: postgres:16
+    container_name: compdes-db
+    environment:
+      POSTGRES_USER: onyx_app
+      POSTGRES_PASSWORD: app_password_123
+      POSTGRES_DB: distribuidora
+    ports:
+      - "5433:5432"
+    volumes:
+      # :ro = solo lectura. seed.sql se ejecuta una vez, al primer arranque.
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    # healthcheck: docker sabrá cuándo la base está realmente lista para aceptar
+    # conexiones (evita el clásico "connection refused" al arrancar el agente).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U onyx_app -d distribuidora"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
