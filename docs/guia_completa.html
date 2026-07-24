@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía completa — del PC en blanco a la demo · COMPDES 2026</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5c5c5c; --line: #e4e4e7;
+    --code-bg: #f5f6f8; --code-fg: #1a1a1a; --accent: #1a56b0; --accent-fg: #fff;
+    --warn-bg: #fff8e6; --warn-line: #e0a800;
+    --ok-bg: #eef8f0; --ok-line: #2e7d43;
+    --bad-bg: #fdf0ef; --bad-line: #c0392b;
+    --btn-bg: #e7e9ee; --btn-fg: #333; --btn-ok: #2e7d43;
+    --th-bg: #f0f1f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15171b; --fg: #e6e6e6; --muted: #9aa0a8; --line: #2d3138;
+      --code-bg: #1d2025; --code-fg: #e6e6e6; --accent: #7aa7ea; --accent-fg: #0b0d10;
+      --warn-bg: #2b2410; --warn-line: #b58900;
+      --ok-bg: #14251a; --ok-line: #4caf72;
+      --bad-bg: #2a1614; --bad-line: #e06c5b;
+      --btn-bg: #2a2e35; --btn-fg: #cfd3da; --btn-ok: #4caf72;
+      --th-bg: #22262d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15171b; --fg: #e6e6e6; --muted: #9aa0a8; --line: #2d3138;
+    --code-bg: #1d2025; --code-fg: #e6e6e6; --accent: #7aa7ea; --accent-fg: #0b0d10;
+    --warn-bg: #2b2410; --warn-line: #b58900; --ok-bg: #14251a; --ok-line: #4caf72;
+    --bad-bg: #2a1614; --bad-line: #e06c5b; --btn-bg: #2a2e35; --btn-fg: #cfd3da;
+    --btn-ok: #4caf72; --th-bg: #22262d;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5c5c5c; --line: #e4e4e7;
+    --code-bg: #f5f6f8; --code-fg: #1a1a1a; --accent: #1a56b0; --accent-fg: #fff;
+    --warn-bg: #fff8e6; --warn-line: #e0a800; --ok-bg: #eef8f0; --ok-line: #2e7d43;
+    --bad-bg: #fdf0ef; --bad-line: #c0392b; --btn-bg: #e7e9ee; --btn-fg: #333;
+    --btn-ok: #2e7d43; --th-bg: #f0f1f4;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--fg); margin: 0 auto; padding: 2.5rem 1.25rem 6rem;
+    max-width: 840px; line-height: 1.7; font-size: 1.02rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 .4rem; letter-spacing: -.01em; }
+  h2 {
+    font-size: 1.35rem; margin: 3rem 0 .9rem; padding-top: 1.4rem;
+    border-top: 1px solid var(--line); scroll-margin-top: 1rem;
+  }
+  h3 { font-size: 1.08rem; margin: 1.8rem 0 .5rem; }
+  p { margin: .7rem 0; }
+  .sub { color: var(--muted); margin: 0 0 1.6rem; font-size: 1.05rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; margin: 0 0 2rem;
+    font-size: .92rem; color: var(--muted);
+  }
+  .meta b { color: var(--fg); font-weight: 600; }
+  code {
+    background: var(--code-bg); padding: .12em .4em; border-radius: 4px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .88em;
+  }
+  /* Bloques de código con botón de copiar */
+  .code { position: relative; margin: 1.1rem 0; }
+  .code pre {
+    background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--line);
+    border-radius: 8px; padding: 1rem 1.1rem; padding-right: 5.5rem;
+    overflow-x: auto; font-size: .9rem; line-height: 1.55; margin: 0;
+  }
+  .code pre code { background: none; padding: 0; font-size: inherit; }
+  .copy-btn {
+    position: absolute; top: .55rem; right: .55rem;
+    background: var(--btn-bg); color: var(--btn-fg); border: 1px solid var(--line);
+    border-radius: 6px; padding: .3rem .6rem; font-size: .78rem; cursor: pointer;
+    font-family: inherit; transition: all .15s ease;
+  }
+  .copy-btn:hover { border-color: var(--accent); }
+  .copy-btn.ok { color: var(--btn-ok); border-color: var(--btn-ok); }
+  .os {
+    display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em;
+    text-transform: uppercase; color: var(--muted); margin: 1rem 0 .3rem;
+  }
+  .box { border-left: 4px solid; border-radius: 0 7px 7px 0; padding: .9rem 1.15rem; margin: 1.3rem 0; }
+  .box p:first-child { margin-top: 0; } .box p:last-child { margin-bottom: 0; }
+  .warn { background: var(--warn-bg); border-color: var(--warn-line); }
+  .ok   { background: var(--ok-bg);   border-color: var(--ok-line); }
+  .bad  { background: var(--bad-bg);  border-color: var(--bad-line); }
+  .wrap { overflow-x: auto; margin: 1.1rem 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+  th, td { border: 1px solid var(--line); padding: .55rem .75rem; text-align: left; vertical-align: top; }
+  th { background: var(--th-bg); font-weight: 600; }
+  .step-n {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--accent);
+    color: var(--accent-fg); font-size: .9rem; font-weight: 700; margin-right: .55rem; flex: none;
+  }
+  h2 .step-n { vertical-align: middle; }
+  a { color: var(--accent); }
+  ol, ul { padding-left: 1.4rem; }
+  li { margin: .35rem 0; }
+  /* Índice */
+  nav.toc {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1rem 1.2rem; margin: 1.5rem 0 2rem; font-size: .95rem;
+  }
+  nav.toc strong { display: block; margin-bottom: .5rem; }
+  nav.toc ol { margin: 0; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 2.5rem 0; }
+  footer { margin-top: 3.5rem; padding-top: 1.3rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+  /* Botón de tema */
+  .theme-toggle {
+    position: fixed; top: 1rem; right: 1rem; background: var(--btn-bg); color: var(--btn-fg);
+    border: 1px solid var(--line); border-radius: 6px; padding: .35rem .7rem; font-size: .82rem;
+    cursor: pointer; font-family: inherit; z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()">Tema</button>
+
+<h1>Guía completa</h1>
+<p class="sub">Del PC en blanco a la demostración funcionando — Taller de Seguridad de Agentes MCP/RAG · COMPDES 2026</p>
+
+<div class="meta">
+  <span><b>Para:</b> cualquiera, sin experiencia previa</span>
+  <span><b>Sistemas:</b> Windows 10/11 y Linux</span>
+  <span><b>Tiempo:</b> 30–45 min la primera vez</span>
+</div>
+
+<p>Esta guía lleva a cualquier persona desde una computadora recién encendida
+hasta ver el agente de <em>Distribuidora Central</em> respondiendo preguntas
+reales. Está pensada para seguirse paso a paso, sin saltarse nada.</p>
+
+<div class="box ok">
+<p><strong>Cómo leer esta guía.</strong> Cada paso explica <em>qué</em> hace y
+<em>por qué</em>, y luego da los comandos exactos para copiar (con el botón
+<em>Copiar</em>) y pegar. Si un comando funciona, no imprime errores; siga al
+siguiente. Si algo falla, vaya a <a href="#problemas">Problemas comunes</a>.</p>
+</div>
+
+<nav class="toc">
+  <strong>Contenido</strong>
+  <ol>
+    <li><a href="#requisitos">Las tres piezas que necesita cada PC</a></li>
+    <li><a href="#paso1">Instalar las tres piezas</a></li>
+    <li><a href="#paso2">Descargar el taller</a></li>
+    <li><a href="#paso3">Instalar las dependencias</a></li>
+    <li><a href="#paso4">Colocar su llave de API</a></li>
+    <li><a href="#paso5">Verificar que todo está listo</a></li>
+    <li><a href="#paso6">Levantar la base de datos</a></li>
+    <li><a href="#paso7">La demostración (Hora 1)</a></li>
+    <li><a href="#sigue">Qué sigue: Horas 2 y 3</a></li>
+    <li><a href="#limpieza">Limpieza</a></li>
+    <li><a href="#problemas">Problemas comunes</a></li>
+  </ol>
+</nav>
+
+<h2 id="requisitos">Antes de empezar: las tres piezas que necesita cada PC</h2>
+
+<p>El taller usa tres herramientas. No hay que entenderlas a fondo, solo tenerlas
+instaladas:</p>
+
+<div class="wrap">
+<table>
+  <tr><th>Herramienta</th><th>Para qué sirve aquí</th><th>Obligatoria</th></tr>
+  <tr><td><strong>Python</strong> (3.11+)</td><td>Ejecuta el código del agente y los scripts</td><td>Sí</td></tr>
+  <tr><td><strong>Docker</strong></td><td>Levanta la base de datos de la PyME en un contenedor aislado</td><td>Sí</td></tr>
+  <tr><td><strong>Git</strong></td><td>Descarga el código del taller desde GitHub</td><td>Sí</td></tr>
+  <tr><td><strong>Node.js</strong> (20+)</td><td>Solo para las herramientas de las Horas 2 y 3</td><td>Opcional</td></tr>
+</table>
+</div>
+
+<p>Además, cada asistente necesita <strong>una llave de API</strong> (se la entrega
+el tutor) y conexión a internet.</p>
+
+<h2 id="paso1"><span class="step-n">1</span>Instalar las tres piezas</h2>
+
+<h3>En Windows</h3>
+<p>La forma más rápida es con <strong>winget</strong>, el instalador de paquetes que
+ya viene en Windows 10 y 11. Abra <strong>PowerShell</strong> (búsquelo en el menú
+Inicio) y pegue:</p>
+
+<div class="code"><pre><code>winget install --id Python.Python.3.12 -e
+winget install --id Git.Git -e
+winget install --id Docker.DockerDesktop -e</code></pre></div>
+
+<p>Después:</p>
+<ol>
+  <li><strong>Cierre y vuelva a abrir PowerShell</strong> (para que reconozca lo instalado).</li>
+  <li><strong>Abra Docker Desktop</strong> desde el menú Inicio y déjelo arrancar hasta
+  que diga <em>"Engine running"</em>. La primera vez puede pedir reiniciar el PC o
+  activar WSL2; acepte. Docker debe estar <strong>corriendo</strong> para el Paso 6.</li>
+</ol>
+
+<div class="box warn">
+<p>Si <code>winget</code> no existe en su equipo, instale a mano desde:
+<a href="https://www.python.org/downloads/">python.org</a> (marque la casilla
+<strong>"Add Python to PATH"</strong> durante la instalación),
+<a href="https://git-scm.com/download/win">git-scm.com</a> y
+<a href="https://www.docker.com/products/docker-desktop/">docker.com</a>.</p>
+</div>
+
+<h3>En Linux (Ubuntu / Debian)</h3>
+<p>Abra una terminal y ejecute:</p>
+
+<div class="code"><pre><code>sudo apt update
+sudo apt install -y python3 python3-venv python3-pip git docker.io docker-compose-v2
+# Permite usar Docker sin 'sudo' (cierre sesión y vuelva a entrar tras esto):
+sudo usermod -aG docker $USER</code></pre></div>
+
+<p>Cierre la sesión y vuelva a entrar (o reinicie) para que el permiso de Docker
+tome efecto.</p>
+
+<h3>Comprobar que todo quedó instalado</h3>
+<p>Cierre y reabra la terminal, y verifique las versiones. Cada comando debe
+imprimir un número, no un error:</p>
+
+<div class="code"><pre><code>python --version     # en Linux quizá sea: python3 --version
+git --version
+docker --version</code></pre></div>
+
+<h2 id="paso2"><span class="step-n">2</span>Descargar el taller</h2>
+
+<p><code>git clone</code> copia el repositorio completo a su máquina, en una carpeta
+llamada <code>compdes-workshop</code>:</p>
+
+<div class="code"><pre><code>git clone https://github.com/DavidMGDev/compdes-workshop.git
+cd compdes-workshop</code></pre></div>
+
+<p>A partir de aquí, <strong>todos los comandos se ejecutan dentro de esa
+carpeta</strong>.</p>
+
+<h2 id="paso3"><span class="step-n">3</span>Instalar las dependencias del taller</h2>
+
+<p>El repositorio trae un <strong>instalador guiado</strong> que hace el trabajo
+pesado: crea un entorno aislado de Python, instala las librerías y prepara la
+configuración.</p>
+
+<div class="os">Windows (PowerShell)</div>
+<div class="code"><pre><code>powershell -ExecutionPolicy Bypass -File install\setup.ps1</code></pre></div>
+
+<div class="os">Linux / macOS</div>
+<div class="code"><pre><code>bash install/setup.sh</code></pre></div>
+
+<p>El instalador imprime lo que hace en cada paso. Por dentro:</p>
+<ol>
+  <li>Verifica que Python y Docker estén presentes.</li>
+  <li>Crea un <strong>entorno virtual</strong> (<code>.venv</code>): una copia aislada
+  de Python para que las librerías del taller no interfieran con el resto de su sistema.</li>
+  <li>Instala las dependencias (esta parte tarda: descarga varios cientos de MB,
+  incluida la librería de IA. Es normal que tome unos minutos).</li>
+  <li>Crea su archivo de configuración <code>.env</code> a partir de una plantilla.</li>
+  <li>Corre un diagnóstico final.</li>
+</ol>
+
+<div class="box warn">
+<p><strong>¿Prefiere hacerlo a mano, sin el script?</strong> Todo el proceso manual,
+comando por comando, está en <code>SETUP.md</code>. Útil si va a <strong>mostrar</strong>
+el montaje en vivo en lugar de automatizarlo.</p>
+</div>
+
+<h2 id="paso4"><span class="step-n">4</span>Colocar su llave de API</h2>
+
+<p>El instalador creó un archivo <code>.env</code> con una plantilla. Ábralo con
+cualquier editor de texto (Bloc de notas, VS Code, <code>nano</code>...) y busque
+esta línea:</p>
+
+<div class="code"><pre><code>OPENAI_API_KEY=PEGUE_SU_LLAVE_AQUI</code></pre></div>
+
+<p>Reemplace <code>PEGUE_SU_LLAVE_AQUI</code> por la llave que le dio el tutor
+(empieza con <code>AQ.</code>). Guarde el archivo. Debe quedar así:</p>
+
+<div class="code"><pre><code>OPENAI_API_KEY=AQ.Ab8RN6...el-resto-de-su-llave</code></pre></div>
+
+<p>No cambie nada más: el modelo y los demás valores ya vienen configurados.</p>
+
+<div class="box bad">
+<p><strong>Cuide su llave.</strong> No la comparta, no la suba a GitHub, no la pegue
+en capturas. El archivo <code>.env</code> ya está configurado para que Git nunca lo suba.</p>
+</div>
+
+<h2 id="paso5"><span class="step-n">5</span>Verificar que todo está listo</h2>
+
+<p>Dos comprobaciones. La primera revisa el entorno sin gastar la llave; la segunda
+hace <strong>una</strong> llamada real de prueba. En Windows use
+<code>.venv\Scripts\python.exe</code>; en Linux/macOS active el entorno
+(<code>source .venv/bin/activate</code>) y use <code>python</code>.</p>
+
+<div class="os">Windows</div>
+<div class="code"><pre><code>.venv\Scripts\python.exe install\check_setup.py
+.venv\Scripts\python.exe install\check_key.py</code></pre></div>
+
+<div class="os">Linux / macOS</div>
+<div class="code"><pre><code>source .venv/bin/activate
+python install/check_setup.py
+python install/check_key.py</code></pre></div>
+
+<ul>
+  <li><code>check_setup.py</code> debe terminar en <strong>"entorno OK"</strong>.</li>
+  <li><code>check_key.py</code> debe imprimir <strong><code>[OK] FUNCIONA</code></strong>
+  y la palabra que respondió el modelo. Si lo ve, su llave sirve y puede continuar.</li>
+</ul>
+
+<p>Si <code>check_key.py</code> da un error, la tabla de
+<a href="#problemas">Problemas comunes</a> dice qué significa cada uno.</p>
+
+<h2 id="paso6"><span class="step-n">6</span>Levantar la base de datos</h2>
+
+<p>El agente consulta una base de datos PostgreSQL con datos de la PyME ficticia.
+Docker la levanta en un contenedor aislado, ya con los datos cargados. Asegúrese
+de que <strong>Docker esté corriendo</strong> (en Windows, que Docker Desktop diga
+"Engine running") y ejecute:</p>
+
+<div class="code"><pre><code>cd target
+docker compose up -d
+docker compose ps        # debe verse el contenedor como "healthy"
+cd ..</code></pre></div>
+
+<p>La primera vez descarga la imagen de PostgreSQL (unos 100 MB). Solo pasa una vez.</p>
+
+<h2 id="paso7"><span class="step-n">7</span>La demostración (Hora 1)</h2>
+
+<p>Este es el momento en que se ve el valor. Primero genere los documentos de
+política que el agente va a citar, y luego arranque el agente:</p>
+
+<div class="os">Windows</div>
+<div class="code"><pre><code>.venv\Scripts\python.exe target\make_policies.py
+.venv\Scripts\python.exe target\agent\agent.py</code></pre></div>
+
+<div class="os">Linux / macOS</div>
+<div class="code"><pre><code>python target/make_policies.py
+python target/agent/agent.py</code></pre></div>
+
+<p>El agente queda esperando sus preguntas. Pruebe estas tres, una por una, y
+observe qué hace en cada caso:</p>
+
+<div class="wrap">
+<table>
+  <tr><th>Escriba esto</th><th>Qué demuestra</th></tr>
+  <tr>
+    <td><code>¿Cuánto stock tenemos de cemento?</code></td>
+    <td>El agente <strong>consulta la base de datos</strong> y responde con el dato real.</td>
+  </tr>
+  <tr>
+    <td><code>Según nuestra política, ¿qué crédito le doy a un cliente nuevo?</code></td>
+    <td>El agente <strong>cita el documento</strong> de política (RAG).</td>
+  </tr>
+  <tr>
+    <td><code>Sube el stock del SKU-002 a 950.</code></td>
+    <td>El agente <strong>modifica la base de datos</strong> (acción, no solo lectura).</td>
+  </tr>
+</table>
+</div>
+
+<p>Para salir del agente, escriba <code>salir</code>.</p>
+
+<div class="box ok">
+<p><strong>Qué acaba de ver:</strong> un agente autónomo que, en minutos, razona
+sobre una pregunta, decide qué herramienta usar, consulta datos reales y actúa
+sobre ellos. Ese es el gancho del taller. En la Hora 2 se descubre que ese mismo
+poder —consultar, citar, actuar— es también su superficie de ataque.</p>
+</div>
+
+<h2 id="sigue">Qué sigue: Horas 2 y 3</h2>
+
+<p>La Hora 1 construyó el agente. El resto del taller lo pone a prueba:</p>
+<ul>
+  <li><strong>Hora 2 — Romper</strong> (<code>attacks/README.md</code>): técnicas
+  reales de <em>red teaming</em> que abusan de los permisos legítimos del agente
+  (inyección vía documentos, envenenamiento de herramientas, jailbreak
+  multi-turno, SSRF).</li>
+  <li><strong>Hora 3 — Blindar</strong> (<code>defenses/README.md</code>): las
+  mitigaciones pragmáticas que una PyME sí puede aplicar, verificando que cada
+  ataque de la Hora 2 ahora falla.</li>
+</ul>
+<p>Cada carpeta tiene su propio README con los pasos.</p>
+
+<h2 id="limpieza">Limpieza (al terminar)</h2>
+
+<p>Para apagar la base de datos y liberar recursos:</p>
+<div class="code"><pre><code>cd target
+docker compose down -v      # apaga el contenedor y borra sus datos
+cd ..</code></pre></div>
+
+<p>El entorno virtual (<code>.venv</code>) y el código quedan en su carpeta; puede
+volver a levantar todo con el Paso 6 cuando quiera.</p>
+
+<h2 id="problemas">Problemas comunes</h2>
+
+<div class="wrap">
+<table>
+  <tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr>
+  <tr><td><code>python: command not found</code></td><td>Python no quedó en el PATH</td><td>En Windows, reinstale marcando "Add Python to PATH". En Linux use <code>python3</code>.</td></tr>
+  <tr><td><code>check_key.py</code> → <code>401</code></td><td>Llave mal copiada</td><td>Cópiela completa, sin espacios ni saltos de línea, en el <code>.env</code>.</td></tr>
+  <tr><td><code>check_key.py</code> → <code>429 ... credits are depleted</code></td><td>El presupuesto del grupo se agotó</td><td>Avise al tutor. No es un error de su código.</td></tr>
+  <tr><td><code>check_key.py</code> → <code>404 ... model</code></td><td>El <code>AGENT_MODEL</code> del <code>.env</code> se modificó</td><td>Debe decir <code>gemini-3.5-flash-lite</code>.</td></tr>
+  <tr><td><code>docker: ... daemon ... not running</code></td><td>Docker no está encendido</td><td>En Windows, abra Docker Desktop y espere a "Engine running".</td></tr>
+  <tr><td><code>docker compose</code> → <code>permission denied</code> (Linux)</td><td>Falta el permiso del grupo docker</td><td><code>sudo usermod -aG docker $USER</code> y vuelva a iniciar sesión.</td></tr>
+  <tr><td><code>ModuleNotFoundError</code> al correr el agente</td><td>El entorno no está activo o faltan dependencias</td><td>Repita el Paso 3, o active el entorno: <code>.venv\Scripts\activate</code> / <code>source .venv/bin/activate</code>.</td></tr>
+  <tr><td><code>port 5433 ... in use</code></td><td>Otro programa ocupa ese puerto</td><td>Cambie <code>5433</code> por otro puerto en <code>target/docker-compose.yml</code> y en <code>.env</code>.</td></tr>
+  <tr><td>El agente no usa las herramientas</td><td>Modelo o llave con problemas</td><td>Confirme con <code>check_key.py</code> que la llave responde.</td></tr>
+</table>
+</div>
+
+<footer>
+COMPDES 2026 · Taller de Seguridad de Agentes MCP/RAG para PyMEs<br>
+Repositorio: <a href="https://github.com/DavidMGDev/compdes-workshop">github.com/DavidMGDev/compdes-workshop</a>
+</footer>
+
+<script>
+  // Botón de copiar en cada bloque de código.
+  document.querySelectorAll('.code').forEach(function (block) {
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copiar';
+    btn.addEventListener('click', function () {
+      var code = block.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        btn.textContent = 'Copiado'; btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = 'Copiar'; btn.classList.remove('ok'); }, 1500);
+      });
+    });
+    block.appendChild(btn);
+  });
+
+  // Alternar tema claro/oscuro manualmente.
+  function toggleTheme() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light'
+             : cur === 'light' ? 'dark'
+             : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', next);
+  }
+</script>
+</body>
+</html>
