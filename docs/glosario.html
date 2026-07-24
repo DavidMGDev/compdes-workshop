@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glosario de tecnologías — Taller COMPDES 2026</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a5a5a; --card:#f6f7f9;
+    --border:#e2e5ea; --accent:#2563eb; --head:#0f172a;
+    --nucleo-bg:#dbeafe; --nucleo-fg:#1e40af;
+    --soporte-bg:#dcfce7; --soporte-fg:#166534;
+    --marco-bg:#eceff3; --marco-fg:#475569;
+    --phase-bg:#fef3c7; --phase-fg:#92400e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1115; --fg:#e6e8eb; --muted:#9aa2ad; --card:#171a20;
+      --border:#262b33; --accent:#60a5fa; --head:#f1f5f9;
+      --nucleo-bg:#1e3a5f; --nucleo-fg:#bfdbfe;
+      --soporte-bg:#14432a; --soporte-fg:#bbf7d0;
+      --marco-bg:#22262e; --marco-fg:#cbd5e1;
+      --phase-bg:#3f2d10; --phase-fg:#fde68a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1115; --fg:#e6e8eb; --muted:#9aa2ad; --card:#171a20;
+    --border:#262b33; --accent:#60a5fa; --head:#f1f5f9;
+    --nucleo-bg:#1e3a5f; --nucleo-fg:#bfdbfe;
+    --soporte-bg:#14432a; --soporte-fg:#bbf7d0;
+    --marco-bg:#22262e; --marco-fg:#cbd5e1;
+    --phase-bg:#3f2d10; --phase-fg:#fde68a;
+  }
+  :root[data-theme="light"]{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a5a5a; --card:#f6f7f9;
+    --border:#e2e5ea; --accent:#2563eb; --head:#0f172a;
+    --nucleo-bg:#dbeafe; --nucleo-fg:#1e40af;
+    --soporte-bg:#dcfce7; --soporte-fg:#166534;
+    --marco-bg:#eceff3; --marco-fg:#475569;
+    --phase-bg:#fef3c7; --phase-fg:#92400e;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:32px 20px 80px}
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  h1{font-size:1.7rem; margin:.2em 0 .1em; color:var(--head); line-height:1.2}
+  .sub{color:var(--muted); margin:0 0 4px}
+  h2{font-size:1.25rem; margin:2em 0 .6em; color:var(--head); border-bottom:2px solid var(--border); padding-bottom:.3em}
+  .toggle{
+    border:1px solid var(--border); background:var(--card); color:var(--fg);
+    border-radius:8px; padding:8px 12px; cursor:pointer; font-size:.85rem; white-space:nowrap;
+  }
+  .toggle:hover{border-color:var(--accent)}
+  .legend{
+    display:flex; gap:8px; flex-wrap:wrap; margin:20px 0 8px;
+    padding:14px; background:var(--card); border:1px solid var(--border); border-radius:10px;
+  }
+  .legend p{width:100%; margin:0 0 6px; color:var(--muted); font-size:.9rem}
+  .badge{
+    display:inline-block; font-size:.72rem; font-weight:600; letter-spacing:.02em;
+    padding:3px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .nucleo{background:var(--nucleo-bg); color:var(--nucleo-fg)}
+  .soporte{background:var(--soporte-bg); color:var(--soporte-fg)}
+  .marco{background:var(--marco-bg); color:var(--marco-fg)}
+  .phase{background:var(--phase-bg); color:var(--phase-fg)}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:16px 18px; margin:12px 0;
+  }
+  .card .name{font-size:1.05rem; font-weight:700; color:var(--head); margin-right:6px}
+  .card .badges{float:right; display:flex; gap:6px; flex-wrap:wrap; margin-left:8px}
+  .card .what{margin:.5em 0 .2em}
+  .card .use{margin:.2em 0 0; color:var(--muted); font-size:.92rem}
+  .card .use b{color:var(--fg)}
+  code{
+    background:rgba(127,127,127,.15); padding:1px 6px; border-radius:5px;
+    font:0.85em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  .note{
+    margin-top:28px; padding:16px 18px; border-left:4px solid var(--accent);
+    background:var(--card); border-radius:0 10px 10px 0;
+  }
+  footer{margin-top:40px; color:var(--muted); font-size:.85rem; text-align:center}
+  @media (max-width:560px){ .card .badges{float:none; margin:6px 0 0} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>Glosario de tecnologías</h1>
+    <p class="sub">Taller COMPDES 2026 · Seguridad de agentes MCP/RAG para PyMEs</p>
+  </div>
+  <button class="toggle" onclick="toggleTheme()">🌓 Tema</button>
+</header>
+
+<p>Qué es cada tecnología, <b>para qué se usa aquí</b>, en qué momento del taller
+aparece, y su relación con <b>Onyx</b> —el producto que es el centro de la
+propuesta de valor—. La mayoría gira en torno a Onyx: es lo que una PyME
+despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
+
+<div class="legend">
+  <p>Relación con Onyx:</p>
+  <span class="badge nucleo">Núcleo</span> <span style="color:var(--muted);font-size:.85rem">es Onyx o Onyx lo usa directamente</span><br>
+  <span class="badge soporte">Soporte</span> <span style="color:var(--muted);font-size:.85rem">alimenta o rodea a Onyx</span>
+  <span class="badge marco">Marco / Independiente</span> <span style="color:var(--muted);font-size:.85rem">no depende de Onyx</span>
+</div>
+
+<!-- ============ SETUP ============ -->
+<h2>Preparación (antes de la Hora 1)</h2>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Setup + todo</span></div>
+  <span class="name">Docker / Docker Compose</span>
+  <p class="what">Ejecuta programas en "contenedores" aislados, sin instalarlos a mano.</p>
+  <p class="use"><b>Aquí:</b> levanta la base de datos de la PyME <b>y el propio Onyx Lite</b>. Onyx corre enteramente sobre Docker.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Setup</span></div>
+  <span class="name">Git / GitHub</span>
+  <p class="what">Control de versiones y alojamiento de código.</p>
+  <p class="use"><b>Aquí:</b> descargar el taller <b>y clonar el repositorio de Onyx</b> para desplegarlo.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Setup + todo</span></div>
+  <span class="name">Python</span>
+  <p class="what">El lenguaje en que está escrito el código del taller.</p>
+  <p class="use"><b>Aquí:</b> ejecuta el servidor MCP, los scripts y el agente CLI (Ruta B). El servidor MCP en Python es lo que le da herramientas a Onyx.</p>
+</div>
+
+<!-- ============ HORA 1 ============ -->
+<h2>Hora 1 — Construir (el valor de negocio)</h2>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Hora 1–3</span></div>
+  <span class="name">Onyx (Lite, Community Edition)</span>
+  <p class="what">Plataforma de IA de código abierto (antes <i>Danswer</i>, licencia MIT): chat web, RAG sobre documentos y agentes con herramientas.</p>
+  <p class="use"><b>Aquí:</b> <b>es el agente de la PyME</b>. Se abre en <code>localhost:3000</code> y es la cara "de producto" del taller. Modo <b>Lite</b> = ligero (~2 GB RAM).</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Todo</span></div>
+  <span class="name">Gemini <code>gemini-3.5-flash-lite</code></span>
+  <p class="what">El modelo de lenguaje (el "cerebro") de Google que razona y decide qué herramienta usar.</p>
+  <p class="use"><b>Aquí:</b> el modelo con el que se configura Onyx. Económico y afinado para uso de herramientas.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Todo</span></div>
+  <span class="name">Endpoint compatible con OpenAI</span>
+  <p class="what">Una interfaz estándar; permite que el mismo código hable con Gemini, OpenAI u otros sin cambios.</p>
+  <p class="use"><b>Aquí:</b> es cómo Onyx (y el agente CLI) se conectan a Gemini: <code>…/v1beta/openai/</code>.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Hora 1–3</span></div>
+  <span class="name">MCP (Model Context Protocol)</span>
+  <p class="what">Estándar abierto (de Anthropic) para conectar un agente con "herramientas" externas.</p>
+  <p class="use"><b>Aquí:</b> el corazón del taller. Nuestro servidor MCP expone tres herramientas (SQL, actualizar stock, validar enlace). Onyx las registra como una <b>Acción MCP</b> apuntando a <code>host.docker.internal:9000/mcp</code>.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Hora 1–3</span></div>
+  <span class="name">FastMCP</span>
+  <p class="what">La librería de Python que implementa el servidor MCP con pocas líneas.</p>
+  <p class="use"><b>Aquí:</b> corre en dos modos — <code>stdio</code> (para el agente CLI) y <code>--http</code> (para que Onyx lo alcance por red).</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Hora 1–2</span></div>
+  <span class="name">RAG (sentence-transformers)</span>
+  <p class="what">"Generación aumentada por recuperación": deja que el agente cite documentos que no estaban en su entrenamiento.</p>
+  <p class="use"><b>Aquí:</b> recupera fragmentos de los PDF de política. En la Ruta A lo hace <b>Onyx</b> (documentos subidos); en la Ruta B lo hace <code>rag.py</code>. También es el vector del Lab 2.1.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Todo</span></div>
+  <span class="name">PostgreSQL</span>
+  <p class="what">Base de datos relacional.</p>
+  <p class="use"><b>Aquí:</b> los "datos joya" de la PyME (inventario, clientes, columnas sensibles). Onyx la consulta <b>a través de las herramientas MCP</b>; además Onyx Lite guarda su propio estado en Postgres.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Hora 1</span></div>
+  <span class="name">reportlab / pdfplumber</span>
+  <p class="what">Generan y leen archivos PDF.</p>
+  <p class="use"><b>Aquí:</b> crean los PDF de política que luego se suben a Onyx para el RAG.</p>
+</div>
+
+<!-- ============ HORA 2 ============ -->
+<h2>Hora 2 — Romper (red teaming)</h2>
+
+<div class="card">
+  <div class="badges"><span class="badge marco">Marco</span><span class="badge phase">Hora 2</span></div>
+  <span class="name">OWASP Top 10 para Aplicaciones Agénticas (ASI)</span>
+  <p class="what">La lista de referencia de los diez riesgos más importantes específicos de agentes de IA (de OWASP, los mismos del "Top 10" web).</p>
+  <p class="use"><b>Aquí:</b> cada ataque se etiqueta con su código <code>ASI…</code> para conectarlo a un estándar de industria. Aplica al agente Onyx.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge marco">Marco</span><span class="badge phase">Hora 2</span></div>
+  <span class="name">MITRE ATLAS</span>
+  <p class="what">El catálogo de MITRE de tácticas y técnicas adversarias contra sistemas de IA/ML — la versión "ATT&CK" para IA.</p>
+  <p class="use"><b>Aquí:</b> mapea cada ataque a una táctica (Acceso inicial → Ejecución → Exfiltración…). Es una taxonomía, no un programa que se instala.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Ataca a Onyx</span><span class="badge phase">Hora 2</span></div>
+  <span class="name">PyRIT</span>
+  <p class="what">Herramienta de Microsoft para <b>red-teaming automatizado</b> de IA generativa.</p>
+  <p class="use"><b>Aquí:</b> automatiza el jailbreak multi-turno <i>Crescendo</i> (Lab 2.3) contra la API de Onyx o el wrapper HTTP.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge nucleo">Ataca a Onyx</span><span class="badge phase">Hora 2</span></div>
+  <span class="name">Garak</span>
+  <p class="what">Escáner de vulnerabilidades de LLM: lanza cientos de "sondas" conocidas y reporta qué pasó — el "nmap de los LLM".</p>
+  <p class="use"><b>Aquí:</b> escaneo amplio (Lab 2.5) contra el endpoint del agente. Es el lab más costoso; se acota a una familia de sondas.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge marco">Técnica</span><span class="badge phase">Hora 2</span></div>
+  <span class="name">Crescendo</span>
+  <p class="what">No es una herramienta, es una <b>técnica</b>: un jailbreak multi-turno que escala poco a poco para que cada paso parezca razonable.</p>
+  <p class="use"><b>Aquí:</b> se hace a mano en el chat de Onyx (Lab 2.3); PyRIT puede automatizarlo.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Hora 2–3</span></div>
+  <span class="name">FastAPI / uvicorn</span>
+  <p class="what">Framework para exponer código como un servicio web.</p>
+  <p class="use"><b>Aquí:</b> <code>http_wrapper.py</code> expone el agente por HTTP para que los escáneres (Garak/PyRIT) lo ataquen. Es una alternativa a la propia API de Onyx.</p>
+</div>
+
+<!-- ============ HORA 3 ============ -->
+<h2>Hora 3 — Blindar (defensa)</h2>
+
+<div class="card">
+  <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Hora 3</span></div>
+  <span class="name">Herramientas MCP endurecidas + defensas</span>
+  <p class="what">Servidor MCP seguro, roles SQL de mínimo privilegio, aprobación humana (HITL), enrutador semántico y fijado de descriptores.</p>
+  <p class="use"><b>Aquí:</b> se re-registra el servidor MCP seguro en Onyx y se repiten los ataques → ahora fallan. Protegen justamente las herramientas que Onyx invoca.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge marco">Independiente</span><span class="badge phase">Hora 3</span></div>
+  <span class="name">Promptfoo</span>
+  <p class="what">Framework para <b>evaluar y probar LLM</b> de forma automatizada.</p>
+  <p class="use"><b>Aquí:</b> corre los ataques como pruebas de regresión en CI, para que una vulnerabilidad ya corregida no reaparezca.</p>
+</div>
+
+<div class="card">
+  <div class="badges"><span class="badge marco">Independiente</span><span class="badge phase">Hora 2–3 (opcional)</span></div>
+  <span class="name">Node.js</span>
+  <p class="what">Entorno de ejecución de JavaScript.</p>
+  <p class="use"><b>Aquí:</b> solo se necesita para instalar/correr Garak y Promptfoo. No participa en Onyx ni en la Hora 1.</p>
+</div>
+
+<div class="note">
+  <b>En una frase:</b> el taller <b>abre con Onyx</b> como la IA que una PyME sí
+  puede desplegar; el modelo (Gemini), las herramientas (MCP), el RAG y la base
+  de datos son lo que lo vuelven útil — y, en las Horas 2 y 3, lo que se ataca y
+  se blinda.
+</div>
+
+<footer>
+  COMPDES 2026 · Glosario del taller · Ver también <code>docs/ONYX.md</code> y <code>docs/CAMBIOS_ONYX.md</code>
+</footer>
+
+</div>
+<script>
+  function toggleTheme(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    var dark = cur ? cur === 'dark'
+                   : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  }
+</script>
+</body>
+</html>
