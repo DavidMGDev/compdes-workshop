@@ -111,18 +111,14 @@ async def chat(historial, pregunta):
                     model=MODEL, messages=mensajes, tools=oa_tools)
                 msg = resp.choices[0].message
 
-                # Reinsertamos el turno del asistente como dict explícito.
-                # (Serializar los tool_calls evita incompatibilidades entre
-                #  el objeto del SDK y el formato que espera la API al reenviar.)
-                asistente = {"role": "assistant", "content": msg.content or ""}
-                if msg.tool_calls:
-                    asistente["tool_calls"] = [{
-                        "id": tc.id,
-                        "type": "function",
-                        "function": {"name": tc.function.name,
-                                     "arguments": tc.function.arguments},
-                    } for tc in msg.tool_calls]
-                mensajes.append(asistente)
+                # Reinsertamos el turno del asistente con model_dump(), que
+                # PRESERVA los campos específicos del proveedor. Clave en Gemini
+                # 3.x: cada tool_call trae un thought_signature en
+                #   tool_calls[].extra_content.google.thought_signature
+                # que DEBE devolverse en el siguiente turno, o la API responde
+                # 400 ("missing thought_signature"). Reconstruir el mensaje a
+                # mano lo perdía; model_dump() lo conserva intacto.
+                mensajes.append(msg.model_dump(exclude_none=True))
 
                 # Sin tool_calls -> el modelo dio su respuesta final.
                 if not msg.tool_calls:
