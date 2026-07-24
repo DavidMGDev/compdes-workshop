@@ -16,7 +16,7 @@ saltarse nada.
 
 > **Dos rutas, usted elige.** Esta guía monta el agente en su forma **ligera**
 > (línea de comandos): funciona en cualquier laptop y es la más estable. Si su
-> equipo tiene músculo (Docker + 2 GB de RAM libres) y quiere el efecto completo
+> equipo tiene músculo (Docker + ~16 GB de RAM libres) y quiere el efecto completo
 > —el agente en una **interfaz web de producto real (Onyx)**—, primero complete
 > los Pasos 1 a 6 de aquí (son la base común) y luego siga
 > **[ONYX.md](ONYX.md)** en lugar del Paso 7. Los ataques de la Hora 2 y las

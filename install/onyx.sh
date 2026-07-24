@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  onyx.sh — Ruta A: desplegar Onyx Lite y darle poder (Linux / macOS)
+#  onyx.sh — Ruta A: desplegar Onyx Standard y darle poder (Linux / macOS)
 # =============================================================================
 #  Automatiza lo mecánico de las diapositivas 12–13 del taller:
 #    1. Comprueba prerrequisitos (docker corriendo, git, .venv del taller).
 #    2. Clona Onyx (proyecto aparte) junto al repo del taller.
-#    3. Levanta Onyx Lite en Docker (~2 GB RAM).
+#    3. Levanta Onyx Standard en Docker (RAG completo; ~16 GB RAM recomendados).
 #    4. Levanta la base de datos del taller y genera los PDF de política.
 #    5. Deja corriendo el servidor MCP en modo HTTP (le da herramientas a Onyx).
 #    6. Imprime y guarda los valores EXACTOS para pegar en Onyx.
@@ -27,7 +27,10 @@ VPY="$RAIZ/.venv/bin/python"
 # Onyx es un proyecto independiente: lo ponemos JUNTO al repo, no dentro.
 ONYX_DIR="$(dirname "$RAIZ")/onyx"
 COMPOSE="$ONYX_DIR/deployment/docker_compose"
-LITE="docker-compose.onyx-lite.yml"
+# Standard = solo el compose base (con Vespa, Redis y model-servers → RAG real).
+# Lite añadía el overlay docker-compose.onyx-lite.yml, que quita esa pila y por
+# eso el RAG citaba mal. Standard pide ~16 GB de RAM libres.
+BASE="docker-compose.yml"
 
 echo "==> Raíz del taller: $RAIZ"
 echo "==> Onyx se instalará en: $ONYX_DIR"
@@ -74,19 +77,19 @@ else
   echo "    ✓ clonado"
 fi
 
-# Verificamos que exista el archivo de modo Lite (el nombre podría cambiar
-# entre versiones de Onyx; si cambia, avisamos en vez de fallar en seco).
-if [ ! -f "$COMPOSE/$LITE" ]; then
-  echo "    ✗ No encontré '$LITE' en $COMPOSE"
+# Verificamos que exista el compose base (el nombre podría cambiar entre
+# versiones de Onyx; si cambia, avisamos en vez de fallar en seco).
+if [ ! -f "$COMPOSE/$BASE" ]; then
+  echo "    ✗ No encontré '$BASE' en $COMPOSE"
   echo "      El nombre pudo cambiar. Archivos compose disponibles:"
   ls "$COMPOSE"/docker-compose*.yml 2>/dev/null || true
-  echo "      Ajuste la variable LITE en este script o vea docs/ONYX.md."
+  echo "      Ajuste la variable BASE en este script o vea docs/ONYX.md."
   exit 1
 fi
 
-# --- Paso 3: levantar Onyx Lite -------------------------------------------
+# --- Paso 3: levantar Onyx Standard ---------------------------------------
 echo ""
-echo "==> [3/6] Levantando Onyx Lite (la primera vez descarga cientos de MB)..."
+echo "==> [3/6] Levantando Onyx Standard (RAG completo; ~16 GB RAM, descarga varios GB la 1ª vez)..."
 if [ ! -f "$COMPOSE/.env" ]; then
   cp "$COMPOSE/env.template" "$COMPOSE/.env"
   echo "    ✓ .env de Onyx creado"
@@ -97,8 +100,8 @@ if grep -q 'USER_AUTH_SECRET=""' "$COMPOSE/.env" || ! grep -q 'USER_AUTH_SECRET=
   sed -i "s/USER_AUTH_SECRET=\"\"/USER_AUTH_SECRET=\"$SECRET\"/g" "$COMPOSE/.env"
   echo "    ✓ USER_AUTH_SECRET generado automáticamente en .env de Onyx"
 fi
-( cd "$COMPOSE" && docker compose -f docker-compose.yml -f "$LITE" up -d )
-echo "    ✓ Onyx arrancando. Tarda ~1–2 min en estar listo en http://localhost:3000"
+( cd "$COMPOSE" && docker compose -f "$BASE" up -d )
+echo "    ✓ Onyx arrancando. Standard tarda varios minutos (indexador + Vespa) en http://localhost:3000"
 
 # --- Paso 4: base de datos del taller + PDFs -------------------------------
 echo ""
@@ -117,11 +120,16 @@ cat > "$CFG" <<'TXT'
  Primero cree su cuenta de administrador local (correo + contraseña).
 =============================================================================
 
-1) MODELO (LLM) — Admin Panel > LLM > Add provider (OpenAI-compatible):
-     Base URL : https://generativelanguage.googleapis.com/v1beta/openai/
+1) MODELO (LLM) — Admin Panel > LLM > Add provider.
+   *** Para que el agente LLAME a las herramientas MCP, use el proveedor
+       NATIVO de Gemini, NO el "OpenAI-compatible". El endpoint compatible
+       traduce mal las tool-calls y por eso daban error. ***
+     Provider : Google Gemini   (si no aparece: Custom con "Provider Name" = gemini)
      API Key  : (su llave, empieza con AQ...)
-     Model    : gemini-3.5-flash-lite
+     Model    : gemini-3.5-flash-lite   (sin prefijo; Onyx antepone "gemini/")
    Guárdelo y márquelo como modelo por defecto.
+   (Alternativa solo-chat / Ruta B CLI: OpenAI-compatible con
+     Base URL: https://generativelanguage.googleapis.com/v1beta/openai/  y la misma llave.)
 
 2) HERRAMIENTAS (Acción MCP) — Admin Panel > Actions > MCP Actions > Add MCP Server:
      Server URL : http://host.docker.internal:9000/mcp
@@ -140,7 +148,7 @@ cat > "$CFG" <<'TXT'
 
 -----------------------------------------------------------------------------
  Para apagar todo al terminar:
-   (cd ../onyx/deployment/docker_compose && docker compose -f docker-compose.yml -f docker-compose.onyx-lite.yml down)
+   (cd ../onyx/deployment/docker_compose && docker compose -f docker-compose.yml down)
    (cd target && docker compose down -v)
    Y cierre la ventana del servidor MCP (Ctrl+C).
 =============================================================================

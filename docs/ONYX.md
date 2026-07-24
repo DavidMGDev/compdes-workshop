@@ -12,7 +12,7 @@ producto empresarial de verdad.
 > | | Ruta A — **Onyx** (esta guía) | Ruta B — **CLI ligero** |
 > |---|---|---|
 > | Experiencia | Interfaz web real, "producto" | Terminal, mínima |
-> | Requisitos | Docker + **2 GB RAM libres** para Onyx | Solo Python + Docker |
+> | Requisitos | Docker + **~16 GB RAM libres** para Onyx Standard | Solo Python + Docker |
 > | Montaje | ~20–30 min extra (stack de Onyx) | Ya está en [`GUIA_COMPLETA.md`](GUIA_COMPLETA.md) |
 > | Cuándo | Su laptop tiene músculo y quiere el efecto completo | Laptop justa, o quiere lo más simple y estable |
 >
@@ -23,7 +23,7 @@ producto empresarial de verdad.
 > **Nota de honestidad.** Onyx evoluciona rápido: los nombres exactos de botones
 > y menús pueden variar entre versiones. Esta guía se basa en la documentación
 > oficial vigente. **Haga una pasada de prueba usted mismo antes del taller** —
-> sobre todo el Paso 5 (RAG en Onyx Lite), que es el único punto con margen de
+> sobre todo el Paso 5 (RAG en Onyx Standard), que es el único punto con margen de
 > duda. Si algo no calza, la lógica es la misma; ajuste el clic.
 
 ---
@@ -31,7 +31,7 @@ producto empresarial de verdad.
 ## Cómo encaja todo
 
 ```
-   Navegador  ─────────►  Onyx Lite  (localhost:3000)
+   Navegador  ─────────►  Onyx Standard  (localhost:3000)
    del asistente          • Chat + Asistente
                           • RAG sobre los PDF de política
                           • LLM = su llave de Gemini
@@ -56,8 +56,10 @@ hospeda).
 
 - Todo lo de la [guía base](GUIA_COMPLETA.md) (Python, Docker, Git) **ya montado**:
   el repo clonado, el entorno `.venv` creado y su llave en `.env`.
-- **Docker corriendo** con al menos **2 GB de RAM libres** para Onyx Lite.
-- Espacio en disco: ~10 GB (las imágenes de Onyx pesan).
+- **Docker corriendo** con **~16 GB de RAM libres** para Onyx Standard (la pila
+  completa: Vespa + Redis + model-servers, necesaria para el RAG real). Si su
+  laptop no los tiene, use la **Ruta B (CLI)**, que hace RAG local sin Onyx.
+- Espacio en disco: ~15 GB (las imágenes de Onyx Standard pesan).
 
 > **Consejo de logística.** Descargue las imágenes de Onyx **antes** del taller
 > (Paso 2), no el día del evento con 21 personas compitiendo por el wifi.
@@ -66,8 +68,8 @@ hospeda).
 
 ## Atajo: un solo script (opcional)
 
-Los Pasos 1 a 5 (levantar la base de datos, el servidor MCP, desplegar Onyx Lite
-y generar los PDF) están automatizados. Deja además un `onyx-config.txt` con los
+Los Pasos 1 a 5 (levantar la base de datos, el servidor MCP, desplegar Onyx
+Standard y generar los PDF) están automatizados. Deja además un `onyx-config.txt` con los
 valores exactos para pegar en Onyx:
 
 ```powershell
@@ -125,11 +127,17 @@ le dará a Onyx en el Paso 4.
 
 ---
 
-## Paso 2 — Despliegue Onyx Lite
+## Paso 2 — Despliegue Onyx Standard
 
 Onyx es un proyecto **aparte**; se clona y se levanta con su propio Docker
-Compose. Usamos el modo **Lite** (sin base de datos vectorial ni servidores de
-modelo pesados): ~2 GB de RAM, ideal para una laptop.
+Compose. Usamos el modo **Standard** (con base de datos vectorial Vespa, Redis y
+model-servers): es el que hace **RAG de verdad** sobre los PDF y sostiene el
+flujo de herramientas. Pide **~16 GB de RAM**; si su laptop no los tiene, pásese
+a la **Ruta B (CLI)**.
+
+> **¿Por qué ya no Lite?** Lite quita la pila de indexado, y con ella el RAG cita
+> mal y el agente queda a medias. Para el efecto completo (RAG + herramientas MCP)
+> se necesita Standard.
 
 ```bash
 # En una carpeta FUERA del repo del taller (Onyx es independiente):
@@ -138,28 +146,30 @@ cd onyx/deployment/docker_compose
 cp env.template .env          # configuración por defecto; no hay que editar nada para el taller
 ```
 
-Arranque en modo Lite. La forma guiada:
+Arranque en modo Standard. La forma guiada (sin `--lite`):
 
 ```bash
-./install.sh --lite
+./install.sh
 ```
 
-O, de forma explícita (útil para **mostrar** qué hace por dentro):
+O, de forma explícita (útil para **mostrar** qué hace por dentro) — solo el
+compose base, **sin** el overlay de Lite:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.onyx-lite.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 > **Windows:** `install.sh` es un script de shell; use el comando explícito de
 > `docker compose` de arriba desde Git Bash o WSL, o desde PowerShell (Docker
 > Desktop trae `docker compose`).
 
-La primera vez descarga varios cientos de MB. Cuando termine, abra
-**http://localhost:3000**. Onyx le pedirá **crear una cuenta de administrador**
-(correo y contraseña locales, solo para su instancia). Créela y entre.
+La primera vez descarga varios GB. Standard tarda **varios minutos** en indexar y
+quedar listo. Cuando termine, abra **http://localhost:3000**. Onyx le pedirá
+**crear una cuenta de administrador** (correo y contraseña locales, solo para su
+instancia). Créela y entre.
 
 Para **apagar** Onyx al terminar: `./install.sh --shutdown` (o
-`docker compose -f docker-compose.yml -f docker-compose.onyx-lite.yml down`).
+`docker compose -f docker-compose.yml down`).
 
 ---
 
@@ -169,18 +179,18 @@ Onyx necesita un modelo. Le damos el mismo del taller.
 
 1. Clic en su perfil → **Admin Panel**.
 2. En el menú, **LLM** (proveedores de modelo).
-3. Añada un proveedor. Dos opciones equivalentes:
-   - **Gemini nativo:** elija *Google Gemini*, pegue su llave (`AQ...`) y elija
-     el modelo `gemini-3.5-flash-lite`.
-   - **Compatible con OpenAI** (lo que ya usa el resto del taller): proveedor
-     *Custom / OpenAI-compatible*, con:
-     - Base URL: `https://generativelanguage.googleapis.com/v1beta/openai/`
-     - API Key: su llave `AQ...`
-     - Model: `gemini-3.5-flash-lite`
+3. Añada un proveedor. **Use el Gemini NATIVO**, no el compatible con OpenAI:
+   - **Gemini nativo (recomendado):** elija *Google Gemini* (si no aparece,
+     *Custom* con **Provider Name = `gemini`**), pegue su llave (`AQ...`) y ponga
+     el modelo `gemini-3.5-flash-lite` (sin prefijo; Onyx antepone `gemini/`).
 4. Guarde y márquelo como modelo por defecto.
 
-> Cualquiera de las dos sirve. La segunda deja claro que Onyx habla el mismo
-> "idioma" (endpoint compatible con OpenAI) que el agente CLI.
+> **⚠ Importante para las herramientas (Paso 4).** El endpoint **compatible con
+> OpenAI** de Google (`.../v1beta/openai/`) sirve para chatear, pero traduce mal
+> las *tool-calls*: cuando el agente intenta llamar a una herramienta MCP, da
+> error. Para que las herramientas funcionen, **el proveedor del modelo en Onyx
+> debe ser el Gemini nativo** (arriba). El endpoint OpenAI-compatible queda para
+> la **Ruta B (CLI)**, donde no hay este problema.
 
 ---
 
@@ -230,13 +240,12 @@ Eso genera los PDF en `target/policies/`. En Onyx, súbalos como **documentos**
 (a un *connector* de archivos o directamente al asistente, según su versión) para
 que el agente los recupere.
 
-> **Único punto con margen de duda.** Onyx **Lite** corre "sin la pila de
-> indexado" pesada. La subida de archivos existe, pero la fidelidad del
-> recuperador RAG en Lite conviene **probarla antes**. Si en su prueba el agente
-> no cita bien los PDF, tiene dos salidas limpias:
-> 1. usar Onyx **Standard** (no Lite) solo en su máquina de demostración, o
-> 2. hacer el **Lab 2.1 (PDF envenenado)** con el agente CLI de la Ruta B, que
->    hace RAG local garantizado. Todo lo demás sigue en Onyx.
+> **RAG en Standard.** Con Onyx **Standard** (el que despliega esta guía) la pila
+> de indexado (Vespa) está completa, así que el recuperador RAG cita bien los
+> PDF. Tras subirlos, deles **un par de minutos** para que el indexador los
+> procese antes de preguntarles. Si su laptop no aguanta Standard y debe caer a
+> Lite, el RAG queda flojo: en ese caso haga el **Lab 2.1 (PDF envenenado)** con
+> el agente CLI de la Ruta B, que hace RAG local garantizado.
 
 ---
 
@@ -263,7 +272,7 @@ cambia *dónde* se escribe:
 
 | Lab | En Onyx |
 |---|---|
-| **2.1** Inyección vía RAG | Suba el **PDF envenenado** como documento y haga una pregunta inocente en el chat. *(Depende del RAG de Lite; ver Paso 5.)* |
+| **2.1** Inyección vía RAG | Suba el **PDF envenenado** como documento y haga una pregunta inocente en el chat. *(Standard indexa bien; deje unos minutos tras subir. Ver Paso 5.)* |
 | **2.2** Tool poisoning | Edite la *docstring* de `consultar_inventario` en el servidor MCP, **reinicie el servidor MCP** (Terminal 2). Onyx relee la descripción envenenada. |
 | **2.3** Crescendo | Conduzca la secuencia multi-turno directamente en el chat de Onyx. |
 | **2.4** SSRF | Pídale al chat que "valide" `http://169.254.169.254/...`; dispara su herramienta `validar_enlace_proveedor`. |

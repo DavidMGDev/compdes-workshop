@@ -19,7 +19,7 @@ y las mismas herramientas MCP**, así que los ataques (Hora 2) y las defensas
 | | **Ruta A — Onyx** | **Ruta B — CLI ligero** |
 |---|---|---|
 | Qué es | [Onyx](https://onyx.app), plataforma de IA de código abierto: interfaz web de "producto" real | Un agente mínimo de terminal |
-| Requisitos | Docker + **2 GB RAM libres** para Onyx | Solo Python + Docker |
+| Requisitos | Docker + **~16 GB RAM libres** para Onyx Standard | Solo Python + Docker |
 | Guía | **[docs/ONYX.md](docs/ONYX.md)** | [docs/GUIA_COMPLETA.md](docs/GUIA_COMPLETA.md) |
 | Cuándo | Laptop con músculo; quiere el efecto completo | Laptop justa; quiere lo más simple y estable |
 

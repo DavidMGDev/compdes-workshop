@@ -23,6 +23,9 @@ material de asistente; es el mapa de qué cambió, cómo reorientar cada hora ha
 | Paso Onyx alineado | `docs/guia_parte1.html` | La guía visual ahora refleja el flujo real (Admin Panel, MCP Action). |
 | `mcp>=1.8` | `requirements.txt` | Necesario para el transporte `streamable-http` que consume Onyx. |
 | Fila de troubleshooting para shells no-bash (fish/csh) | `docs/GUIA_COMPLETA.md` | Evita el falso "error" de `source .venv/bin/activate` en Linux. |
+| Onyx **Standard** en vez de Lite | `install/onyx.sh`, `install/onyx.ps1`, `docs/ONYX.md` | Lite no traía la pila de indexado (Vespa) → el RAG citaba mal. Standard da RAG real. Cuesta ~16 GB RAM (laptops flojas → Ruta B). |
+| Modelo en Onyx = Gemini **nativo**, no OpenAI-compatible | `docs/ONYX.md`, `onyx-config.txt` | El endpoint OpenAI-compatible de Google traduce mal las *tool-calls* y el agente erraba al llamar herramientas MCP. El proveedor nativo `gemini/` sí las ejecuta. |
+| Script `install/fix-docker-host.sh` + allowlist de hosts en el servidor MCP | `install/fix-docker-host.sh`, `target/mcp/inventory_mcp_server.py` | En Linux el firewall bloqueaba Docker→host y el SDK de MCP rechazaba el `Host` de Docker (421). El script abre el puerto y el server acepta `host.docker.internal`/`172.x`. |
 
 **Sin pérdidas:** la Ruta B (agente CLI `target/agent/agent.py`) sigue intacta
 como respaldo para laptops sin músculo. **Los ataques y defensas son idénticos**
@@ -95,13 +98,13 @@ Esta es la sección más importante para la logística de 21 laptops.
   "Engine running").
 - **Descargar imágenes ANTES del taller** (las de Onyx pesan varios cientos de MB).
   No dejarlo para el día con 21 personas y un wifi.
-- **RAM:** Onyx Lite necesita ~2 GB libres. Quien no los tenga → Ruta B.
+- **RAM:** Onyx Standard necesita ~16 GB libres (RAG completo). Quien no los tenga → Ruta B.
 
 ### Windows
 - Instalar con `winget` (Python, Git, Docker Desktop). Reabrir PowerShell tras instalar.
 - Docker Desktop puede pedir **WSL2**; aceptar.
 - El instalador del taller: `powershell -ExecutionPolicy Bypass -File install\setup.ps1`.
-- Onyx: `install.sh` es de shell; en Windows usar el `docker compose -f ... -f docker-compose.onyx-lite.yml up -d` **explícito** desde PowerShell o Git Bash.
+- Onyx: `install.sh` es de shell; en Windows usar el `docker compose -f docker-compose.yml up -d` **explícito** (Standard, sin overlay Lite) desde PowerShell o Git Bash.
 - `host.docker.internal` **funciona de fábrica** en Docker Desktop → la Acción MCP
   usa `http://host.docker.internal:9000/mcp` sin ajustes.
 

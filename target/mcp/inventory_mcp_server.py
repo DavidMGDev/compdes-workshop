@@ -85,24 +85,53 @@ def validar_enlace_proveedor(url: str) -> str:
 
 if __name__ == "__main__":
     import sys
-    # Acepta tanto --http como -http o http
-    if any(arg in sys.argv for arg in ["--http", "-http", "http"]):
-        # Modo HTTP para Onyx. Bind en 0.0.0.0 (no solo localhost) para que el
-        # contenedor de Onyx pueda alcanzarlo vía host.docker.internal. Puerto
-        # 9000 para no chocar con el wrapper HTTP del agente (8000).
+    from mcp.server.transport_security import TransportSecuritySettings
+
+    use_sse = any(arg in sys.argv for arg in ["--sse", "-sse", "sse"])
+    use_http = any(arg in sys.argv for arg in ["--http", "-http", "http"])
+
+    if use_http or use_sse:
         port = int(os.getenv("MCP_HTTP_PORT", "9000"))
         mcp.settings.host = "0.0.0.0"
         mcp.settings.port = port
+        transport_mode = "sse" if use_sse else "streamable-http"
+        endpoint_path = "/sse" if use_sse else "/mcp"
+
+        # Permitir conexiones desde contenedores Docker (Onyx) además de localhost.
+        # Sin esto, el middleware de seguridad DNS rebinding rechaza las peticiones
+        # con Host: host.docker.internal o Host: 172.x.x.x con 421 Misdirected.
+        mcp.settings.transport_security = TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=[
+                "127.0.0.1:*",
+                "localhost:*",
+                "[::1]:*",
+                "host.docker.internal:*",   # Docker Desktop / Linux host-gateway
+                "172.17.0.1:*",             # docker0 bridge gateway
+                "172.19.0.1:*",             # onyx_default bridge gateway
+                f"0.0.0.0:{port}",          # bind address
+            ],
+            allowed_origins=[
+                "http://127.0.0.1:*",
+                "http://localhost:*",
+                "http://[::1]:*",
+                "http://host.docker.internal:*",
+                "http://172.17.0.1:*",
+                "http://172.19.0.1:*",
+            ],
+        )
 
         print("\n============================================================", flush=True)
-        print(f" [OK] Servidor MCP de Distribuidora Central LISTO", flush=True)
-        print(f" Escuchando localmente en:  http://0.0.0.0:{port}/mcp", flush=True)
-        print(f" Para Onyx configura en:    http://host.docker.internal:{port}/mcp", flush=True)
+        print(f" [OK] Servidor MCP de Distribuidora Central LISTO ({transport_mode})", flush=True)
+        print(f" Escuchando localmente en:  http://0.0.0.0:{port}{endpoint_path}", flush=True)
+        print(f" URL para Onyx:             http://host.docker.internal:{port}{endpoint_path}", flush=True)
+        print(f" (Si falla en Linux prueba): http://172.17.0.1:{port}{endpoint_path}", flush=True)
         print("============================================================", flush=True)
         print(" -> Mantenga esta terminal abierta mientras trabaja en la Ruta A.\n", flush=True)
 
-        mcp.run(transport="streamable-http")
+        mcp.run(transport=transport_mode)
     else:
         # mcp.run() arranca el bucle de servidor sobre stdio (modo por defecto).
         mcp.run()
+
 
