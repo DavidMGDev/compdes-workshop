@@ -5,6 +5,11 @@ Laboratorio práctico: construya un agente autónomo para una PyME ficticia
 luego blíndelo. Todo el código está aquí, comentado, para ejecutarlo y para
 mostrarlo en vivo.
 
+> **¿Primera vez, o partiendo de un PC en blanco?** Siga la
+> **[Guía completa paso a paso](docs/GUIA_COMPLETA.md)**: instala todo desde cero
+> (Python, Docker, Git) y llega hasta ver la demostración funcionando. Es la
+> mejor puerta de entrada para cualquiera sin experiencia.
+
 > **Aviso de uso responsable.** Todo esto se ejecuta **exclusivamente contra el
 > laboratorio aislado que usted despliega en su máquina**. Las técnicas de
 > inyección, SSRF y jailbreak son legítimas en *red teaming* de sistemas
