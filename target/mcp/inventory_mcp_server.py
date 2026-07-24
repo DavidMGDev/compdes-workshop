@@ -85,17 +85,24 @@ def validar_enlace_proveedor(url: str) -> str:
 
 if __name__ == "__main__":
     import sys
-    if "--http" in sys.argv:
+    # Acepta tanto --http como -http o http
+    if any(arg in sys.argv for arg in ["--http", "-http", "http"]):
         # Modo HTTP para Onyx. Bind en 0.0.0.0 (no solo localhost) para que el
         # contenedor de Onyx pueda alcanzarlo vía host.docker.internal. Puerto
         # 9000 para no chocar con el wrapper HTTP del agente (8000).
-        # ponytail: streamable-http fijo; si su Onyx es viejo y pide /sse,
-        #           cambie transport a "sse".
+        port = int(os.getenv("MCP_HTTP_PORT", "9000"))
         mcp.settings.host = "0.0.0.0"
-        mcp.settings.port = int(os.getenv("MCP_HTTP_PORT", "9000"))
-        print(f"[MCP] HTTP en http://0.0.0.0:{mcp.settings.port}/mcp "
-              f"(Onyx: http://host.docker.internal:{mcp.settings.port}/mcp)")
+        mcp.settings.port = port
+
+        print("\n============================================================", flush=True)
+        print(f" [OK] Servidor MCP de Distribuidora Central LISTO", flush=True)
+        print(f" Escuchando localmente en:  http://0.0.0.0:{port}/mcp", flush=True)
+        print(f" Para Onyx configura en:    http://host.docker.internal:{port}/mcp", flush=True)
+        print("============================================================", flush=True)
+        print(" -> Mantenga esta terminal abierta mientras trabaja en la Ruta A.\n", flush=True)
+
         mcp.run(transport="streamable-http")
     else:
         # mcp.run() arranca el bucle de servidor sobre stdio (modo por defecto).
         mcp.run()
+

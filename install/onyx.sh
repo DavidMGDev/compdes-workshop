@@ -36,10 +36,18 @@ echo "==> Onyx se instalará en: $ONYX_DIR"
 echo ""
 echo "==> [1/6] Comprobando prerrequisitos..."
 falta=0
-if docker info >/dev/null 2>&1; then
+DOCKER_ERR=$(docker info 2>&1 || true)
+if echo "$DOCKER_ERR" | grep -q "Server Version"; then
   echo "    ✓ Docker está corriendo"
+elif echo "$DOCKER_ERR" | grep -q "permission denied"; then
+  echo "    ✗ Permiso denegado para conectarse a Docker."
+  echo "      Ejecute este comando en su terminal para activar los permisos de grupo y reintente:"
+  echo "        newgrp docker"
+  echo "      (O si usa Fish shell:  exec sg docker fish)"
+  falta=1
 else
-  echo "    ✗ Docker no responde. Arránquelo (Docker Desktop / servicio) y reintente."; falta=1
+  echo "    ✗ Docker no responde. Arránquelo (sudo systemctl start docker) y reintente."
+  falta=1
 fi
 if command -v git >/dev/null 2>&1; then
   echo "    ✓ $(git --version)"
@@ -81,7 +89,13 @@ echo ""
 echo "==> [3/6] Levantando Onyx Lite (la primera vez descarga cientos de MB)..."
 if [ ! -f "$COMPOSE/.env" ]; then
   cp "$COMPOSE/env.template" "$COMPOSE/.env"
-  echo "    ✓ .env de Onyx creado (valores por defecto; no hay que editar nada)"
+  echo "    ✓ .env de Onyx creado"
+fi
+# Onyx requiere USER_AUTH_SECRET obligatorio para iniciar el servidor API
+if grep -q 'USER_AUTH_SECRET=""' "$COMPOSE/.env" || ! grep -q 'USER_AUTH_SECRET=' "$COMPOSE/.env"; then
+  SECRET=$(openssl rand -hex 32 2>/dev/null || echo "onyx_secret_workshop_key_$(date +%s)")
+  sed -i "s/USER_AUTH_SECRET=\"\"/USER_AUTH_SECRET=\"$SECRET\"/g" "$COMPOSE/.env"
+  echo "    ✓ USER_AUTH_SECRET generado automáticamente en .env de Onyx"
 fi
 ( cd "$COMPOSE" && docker compose -f docker-compose.yml -f "$LITE" up -d )
 echo "    ✓ Onyx arrancando. Tarda ~1–2 min en estar listo en http://localhost:3000"
