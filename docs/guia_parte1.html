@@ -175,25 +175,37 @@ print(resp.choices[0].message.content)</code></pre>
 </table>
 </div>
 
-<h2><span class="step">4</span>Use la llave en Onyx Lite (vitrina 1A)</h2>
+<h2><span class="step">4</span>Use la llave en Onyx Lite (Ruta A)</h2>
 
-<p>Tras instalar Onyx Lite y abrir <code>http://localhost:3000</code>:</p>
+<p>Esta es la <strong>ruta completa</strong>: el agente en una interfaz web real.
+La guía detallada, paso a paso, está en <code>docs/ONYX.md</code>. En resumen,
+tras desplegar Onyx Lite y abrir <code>http://localhost:3000</code>:</p>
 
 <ol>
-  <li>Vaya a <strong>Settings → LLM</strong>.</li>
-  <li>Agregue un proveedor de tipo <strong>OpenAI-compatible</strong> (no «Google», porque usamos el endpoint compatible).</li>
-  <li>Complete los campos:
+  <li>Cree su cuenta de administrador local.</li>
+  <li><strong>Admin Panel → LLM.</strong> Agregue un proveedor <strong>OpenAI-compatible</strong>:
     <ul>
       <li><strong>Base URL:</strong> <code>https://generativelanguage.googleapis.com/v1beta/openai/</code></li>
       <li><strong>API Key:</strong> su llave <code>AQ.Ab8RN6...</code></li>
       <li><strong>Model name:</strong> <code>gemini-3.5-flash-lite</code></li>
     </ul>
   </li>
-  <li>Guarde y lance la pregunta de negocio del manual:
+  <li><strong>Admin Panel → Actions → MCP Actions → Add MCP Server</strong> (esto le da
+    herramientas al agente). Primero arranque el servidor MCP en modo HTTP:
+    <code>python target/mcp/inventory_mcp_server.py --http</code>. Luego, en Onyx:
+    <ul>
+      <li><strong>MCP Server URL:</strong> <code>http://host.docker.internal:9000/mcp</code>
+        (en Linux, si no resuelve: <code>http://172.17.0.1:9000/mcp</code>)</li>
+      <li><strong>Auth:</strong> No Auth. Conecte y seleccione las tres herramientas.</li>
+    </ul>
+  </li>
+  <li>Suba los PDF de <code>target/policies/</code> como documentos y lance la pregunta:
     <br><em>«¿Cuál es el plazo máximo de crédito que podemos otorgar a un cliente nuevo según nuestra política?»</em></li>
 </ol>
 
-<p>El agente debe responder <strong>citando el PDF</strong> que usted ingirió. Ese es el gancho de la Hora 1.</p>
+<p>El agente debe responder <strong>citando el PDF</strong> y poder consultar/actualizar
+la base de datos. Ese es el gancho de la Hora 1. Detalles y solución de problemas
+en <code>docs/ONYX.md</code>.</p>
 
 <h2><span class="step">5</span>Use la llave en el objetivo controlable (1B)</h2>
 

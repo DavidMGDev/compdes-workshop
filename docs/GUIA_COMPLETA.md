@@ -14,6 +14,14 @@ saltarse nada.
 > los comandos exactos para copiar y pegar. Si un comando funciona, no imprime
 > errores; siga al siguiente. Si algo falla, vaya a **Problemas comunes** al final.
 
+> **Dos rutas, usted elige.** Esta guía monta el agente en su forma **ligera**
+> (línea de comandos): funciona en cualquier laptop y es la más estable. Si su
+> equipo tiene músculo (Docker + 2 GB de RAM libres) y quiere el efecto completo
+> —el agente en una **interfaz web de producto real (Onyx)**—, primero complete
+> los Pasos 1 a 6 de aquí (son la base común) y luego siga
+> **[ONYX.md](ONYX.md)** en lugar del Paso 7. Los ataques de la Hora 2 y las
+> defensas de la Hora 3 son idénticos en ambas rutas.
+
 ---
 
 ## Antes de empezar: las tres piezas que necesita cada PC
@@ -271,6 +279,7 @@ levantar todo con el Paso 6 cuando quiera.
 | `docker: ... daemon ... not running` | Docker no está encendido | En Windows, abra Docker Desktop y espere a "Engine running". |
 | `docker compose` → `permission denied` (Linux) | Falta el permiso del grupo docker | `sudo usermod -aG docker $USER` y vuelva a iniciar sesión. |
 | `ModuleNotFoundError` al correr el agente | El entorno no está activo o faltan dependencias | Repita el Paso 3, o active el entorno: `.venv\Scripts\activate` / `source .venv/bin/activate`. |
+| `source .venv/bin/activate` → `case ... not inside switch` u otro error raro | Su shell no es *bash* (probablemente **fish** o *csh*) | Use el activador de su shell (`source .venv/bin/activate.fish`), o sáltese la activación y llame al Python del entorno directamente: `.venv/bin/python target/agent/agent.py`. |
 | `port 5433 ... in use` | Otro programa ocupa ese puerto | Cambie `5433` por otro puerto en `target/docker-compose.yml` y en `.env`. |
 | El agente no usa las herramientas | Modelo o llave con problemas | Confirme con `check_key.py` que la llave responde. |
 
@@ -279,6 +288,7 @@ levantar todo con el Paso 6 cuando quiera.
 ## Referencias rápidas
 
 - [`README.md`](../README.md) — resumen del proyecto.
+- [`ONYX.md`](ONYX.md) — **Ruta A:** el agente en Onyx (interfaz web) con sus herramientas MCP.
 - [`SETUP.md`](SETUP.md) — instalación **manual**, comando por comando.
 - [`PRESUPUESTO.md`](PRESUPUESTO.md) — modelo de IA, precios y control de gasto.
 - [`guia_parte1.html`](guia_parte1.html) — guía visual de la Parte 1.

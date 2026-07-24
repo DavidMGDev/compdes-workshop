@@ -14,7 +14,12 @@ son deliberadamente inseguras para poder demostrar los ataques:
 
 Estas vulnerabilidades no son bugs: son el material didáctico del taller.
 
-Transporte: stdio (el agente lo lanza como subproceso y habla por stdin/stdout).
+Transporte (dos modos, mismo código y mismas herramientas):
+  - stdio  (por defecto): el agente CLI (target/agent/agent.py) lo lanza como
+           subproceso y habla por stdin/stdout. También lo usa el Lab 2.2.
+  - HTTP   (con --http): lo consume ONYX, que corre en contenedores y por eso
+           NO puede hablar stdio. Onyx lo registra como "MCP Action" apuntando a
+           http://host.docker.internal:9000/mcp  (ver docs/ONYX.md).
 """
 import os
 
@@ -79,5 +84,18 @@ def validar_enlace_proveedor(url: str) -> str:
 
 
 if __name__ == "__main__":
-    # mcp.run() arranca el bucle de servidor sobre stdio.
-    mcp.run()
+    import sys
+    if "--http" in sys.argv:
+        # Modo HTTP para Onyx. Bind en 0.0.0.0 (no solo localhost) para que el
+        # contenedor de Onyx pueda alcanzarlo vía host.docker.internal. Puerto
+        # 9000 para no chocar con el wrapper HTTP del agente (8000).
+        # ponytail: streamable-http fijo; si su Onyx es viejo y pide /sse,
+        #           cambie transport a "sse".
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.port = int(os.getenv("MCP_HTTP_PORT", "9000"))
+        print(f"[MCP] HTTP en http://0.0.0.0:{mcp.settings.port}/mcp "
+              f"(Onyx: http://host.docker.internal:{mcp.settings.port}/mcp)")
+        mcp.run(transport="streamable-http")
+    else:
+        # mcp.run() arranca el bucle de servidor sobre stdio (modo por defecto).
+        mcp.run()

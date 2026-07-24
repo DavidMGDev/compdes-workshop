@@ -10,6 +10,21 @@ mostrarlo en vivo.
 > (Python, Docker, Git) y llega hasta ver la demostración funcionando. Es la
 > mejor puerta de entrada para cualquiera sin experiencia.
 
+### Elija su ruta para la Hora 1
+
+El agente se puede ejecutar de dos formas. **Ambas usan la misma base de datos
+y las mismas herramientas MCP**, así que los ataques (Hora 2) y las defensas
+(Hora 3) funcionan igual en las dos. Cada asistente elige según su equipo:
+
+| | **Ruta A — Onyx** | **Ruta B — CLI ligero** |
+|---|---|---|
+| Qué es | [Onyx](https://onyx.app), plataforma de IA de código abierto: interfaz web de "producto" real | Un agente mínimo de terminal |
+| Requisitos | Docker + **2 GB RAM libres** para Onyx | Solo Python + Docker |
+| Guía | **[docs/ONYX.md](docs/ONYX.md)** | [docs/GUIA_COMPLETA.md](docs/GUIA_COMPLETA.md) |
+| Cuándo | Laptop con músculo; quiere el efecto completo | Laptop justa; quiere lo más simple y estable |
+
+Si Onyx no arranca en su equipo, pásese a la Ruta B **sin perder nada** del taller.
+
 > **Aviso de uso responsable.** Todo esto se ejecuta **exclusivamente contra el
 > laboratorio aislado que usted despliega en su máquina**. Las técnicas de
 > inyección, SSRF y jailbreak son legítimas en *red teaming* de sistemas
@@ -89,6 +104,8 @@ descubrirá que ese mismo poder es su superficie de ataque.
 
 ## Documentación
 
+- [`docs/ONYX.md`](docs/ONYX.md) — **Ruta A:** correr el agente en Onyx (interfaz web) con sus herramientas MCP.
+- [`docs/GUIA_COMPLETA.md`](docs/GUIA_COMPLETA.md) — **Ruta B:** del PC en blanco al agente CLI funcionando.
 - [`docs/SETUP.md`](docs/SETUP.md) — instalación **manual** paso a paso (Windows + Linux).
 - [`docs/PRESUPUESTO.md`](docs/PRESUPUESTO.md) — modelos, precios reales y control de gasto.
 - [`docs/guia_parte1.html`](docs/guia_parte1.html) — guía visual de la Parte 1 para asistentes.

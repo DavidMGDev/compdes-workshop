@@ -4,7 +4,8 @@
 #
 # Versiones fijadas al piso que se probó; «>=» permite parches menores.
 openai>=1.30
-mcp>=1.2
+# >=1.8: incluye el transporte streamable-http que usa Onyx (modo --http).
+mcp>=1.8
 pydantic>=2.7
 # psycopg2-binary trae el driver de Postgres ya compilado (sin necesitar
 # compilador ni libpq en la máquina del asistente — clave en Windows).

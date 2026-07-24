@@ -6,6 +6,11 @@ acceso; **abusa de permisos que el sistema concedió correctamente.**
 Cada lab mapea a OWASP Top 10 for Agentic Applications (prefijo *ASI*) y a
 MITRE ATLAS.
 
+> **Sirve para las dos rutas.** Los labs de abajo están escritos para el agente
+> **CLI** (Ruta B). Si usted montó la **Ruta A (Onyx)**, la tabla "Cómo caen los
+> ataques en Onyx" de [`../docs/ONYX.md`](../docs/ONYX.md) le dice dónde escribir
+> cada uno; la técnica es idéntica.
+
 | Lab | Ataque | Archivo | Mapeo |
 |---|---|---|---|
 | 2.1 | Inyección indirecta vía RAG | `2_1_pdf_envenenado.py` | ASI01 / Execution |
