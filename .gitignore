@@ -17,6 +17,8 @@ __pycache__/
 # === Artefactos generados en tiempo de ejecución ===
 # Los PDFs los genera make_policies.py; no se versionan.
 target/policies/*.pdf
+# onyx-config.txt lo genera install/onyx.{sh,ps1} en cada corrida.
+onyx-config.txt
 *.log
 
 # === Basura del sistema operativo ===

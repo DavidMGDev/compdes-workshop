@@ -64,6 +64,29 @@ hospeda).
 
 ---
 
+## Atajo: un solo script (opcional)
+
+Los Pasos 1 a 5 (levantar la base de datos, el servidor MCP, desplegar Onyx Lite
+y generar los PDF) están automatizados. Deja además un `onyx-config.txt` con los
+valores exactos para pegar en Onyx:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install\onyx.ps1   # Windows
+```
+```bash
+bash install/onyx.sh                                          # Linux / macOS
+```
+
+Requiere haber corrido antes el instalador base (`install/setup.*`, que crea el
+`.venv`). El script termina dejando **el servidor MCP corriendo en esa ventana**
+—no la cierre— y abre `http://localhost:3000`. Luego siga desde el **Paso 3**
+(conectar el modelo) usando `onyx-config.txt`.
+
+> **¿Prefiere verlo a mano?** Los pasos siguientes son exactamente lo que hace el
+> script, uno por uno. Útil para mostrarlo en vivo.
+
+---
+
 ## Paso 1 — Levante la base de datos y el servidor MCP
 
 Estos dos procesos son el "backend" que Onyx va a consumir. Ábralos en dos
