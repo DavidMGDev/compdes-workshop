@@ -20,9 +20,12 @@ import json
 
 
 def hash_tools(tools) -> str:
-    """Hash estable (sort_keys) de nombre + descripción + esquema de cada tool."""
+    """Hash estable (sort_keys) de nombre + descripción + esquema de cada tool.
+    Los espacios de la descripción se normalizan: Python 3.13+ quita la sangría
+    de las docstrings y las versiones anteriores no, y eso no es un ataque."""
     data = json.dumps(
-        [{"n": t.name, "d": t.description, "s": t.inputSchema} for t in tools],
+        [{"n": t.name, "d": " ".join((t.description or "").split()), "s": t.inputSchema}
+         for t in tools],
         sort_keys=True,
     )
     return hashlib.sha256(data.encode()).hexdigest()
@@ -33,7 +36,7 @@ def hash_tools(tools) -> str:
 # Si usted cambia una herramienta a propósito (o actualiza el paquete mcp y
 # cambia el esquema generado), revise el cambio y pegue aquí el hash "actual"
 # que imprime el error. Ese paso manual ES la defensa.
-APROBADO = "5c31468cb05b1976e19e73f0b0a5a3be07e9216f4767b4c5e4d635fa4719d0fc"
+APROBADO = "35fe16753c9fe14a6543e235e43a2f3ff7701167f11147c8627f94d24568aa2d"
 
 
 def verificar(tools) -> None:
