@@ -1,5 +1,9 @@
 # Cambios por el modelo de dos rutas (Onyx como foco) — resumen para la presentación
 
+> **Documento histórico (julio de 2026).** Describe los cambios hechos antes
+> del taller y se conserva tal cual. El estado vigente de la Ruta A está en
+> [`ONYX.md`](ONYX.md) y lo comprobado después, en [`VERIFICACION.md`](VERIFICACION.md).
+
 Documento de trabajo para **actualizar la presentación (PowerPoint)**. No es
 material de asistente; es el mapa de qué cambió, cómo reorientar cada hora hacia
 **Onyx** como propuesta de valor, y cómo lograr que todo corra perfecto en

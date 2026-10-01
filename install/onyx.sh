@@ -5,7 +5,7 @@
 #  Automatiza lo mecánico de las diapositivas 12–13 del taller:
 #    1. Comprueba prerrequisitos (docker corriendo, git, .venv del taller).
 #    2. Clona Onyx (proyecto aparte) junto al repo del taller.
-#    3. Levanta Onyx Standard en Docker (RAG completo; ~16 GB RAM recomendados).
+#    3. Levanta Onyx Standard en Docker (RAG completo; 10 GB RAM minimo, 16 recomendados).
 #    4. Levanta la base de datos del taller y genera los PDF de política.
 #    5. Deja corriendo el servidor MCP en modo HTTP (le da herramientas a Onyx).
 #    6. Imprime y guarda los valores EXACTOS para pegar en Onyx.
@@ -27,9 +27,9 @@ VPY="$RAIZ/.venv/bin/python"
 # Onyx es un proyecto independiente: lo ponemos JUNTO al repo, no dentro.
 ONYX_DIR="$(dirname "$RAIZ")/onyx"
 COMPOSE="$ONYX_DIR/deployment/docker_compose"
-# Standard = solo el compose base (con Vespa, Redis y model-servers → RAG real).
+# Standard = solo el compose base (con OpenSearch, Redis y model-servers → RAG real).
 # Lite añadía el overlay docker-compose.onyx-lite.yml, que quita esa pila y por
-# eso el RAG citaba mal. Standard pide ~16 GB de RAM libres.
+# eso el RAG citaba mal. Standard pide 10 GB de RAM (16 recomendados) y ~25 GB de disco.
 BASE="docker-compose.yml"
 
 echo "==> Raíz del taller: $RAIZ"
@@ -89,7 +89,7 @@ fi
 
 # --- Paso 3: levantar Onyx Standard ---------------------------------------
 echo ""
-echo "==> [3/6] Levantando Onyx Standard (RAG completo; ~16 GB RAM, descarga varios GB la 1ª vez)..."
+echo "==> [3/6] Levantando Onyx Standard (RAG completo; descarga ~21 GB de imagenes la 1a vez)..."
 if [ ! -f "$COMPOSE/.env" ]; then
   cp "$COMPOSE/env.template" "$COMPOSE/.env"
   echo "    ✓ .env de Onyx creado"
@@ -101,7 +101,7 @@ if grep -q 'USER_AUTH_SECRET=""' "$COMPOSE/.env" || ! grep -q 'USER_AUTH_SECRET=
   echo "    ✓ USER_AUTH_SECRET generado automáticamente en .env de Onyx"
 fi
 ( cd "$COMPOSE" && docker compose -f "$BASE" up -d )
-echo "    ✓ Onyx arrancando. Standard tarda varios minutos (indexador + Vespa) en http://localhost:3000"
+echo "    ✓ Onyx arrancando. Standard tarda varios minutos (indexador + OpenSearch) en http://localhost:3000"
 
 # --- Paso 4: base de datos del taller + PDFs -------------------------------
 echo ""
@@ -120,31 +120,38 @@ cat > "$CFG" <<'TXT'
  Primero cree su cuenta de administrador local (correo + contraseña).
 =============================================================================
 
-1) MODELO (LLM) — Admin Panel > LLM > Add provider.
-   *** Para que el agente LLAME a las herramientas MCP, use el proveedor
-       NATIVO de Gemini, NO el "OpenAI-compatible". El endpoint compatible
-       traduce mal las tool-calls y por eso daban error. ***
-     Provider : Google Gemini   (si no aparece: Custom con "Provider Name" = gemini)
-     API Key  : (su llave, empieza con AQ...)
-     Model    : gemini-3.5-flash-lite   (sin prefijo; Onyx antepone "gemini/")
-   Guárdelo y márquelo como modelo por defecto.
-   (Alternativa solo-chat / Ruta B CLI: OpenAI-compatible con
-     Base URL: https://generativelanguage.googleapis.com/v1beta/openai/  y la misma llave.)
+1) MODELO (LLM) - Admin Panel > Language Models > "Custom Models" > Set Up
+     Provider     : gemini      (escriba "gemini" y elijalo en la lista)
+     API Key      : (su llave de AI Studio)
+     Display Name : Gemini
+     Model Name   : gemini-3.5-flash-lite
+   Pulse Connect. Queda como modelo por defecto.
+   *** NO use la tarjeta "Gemini / Google Cloud Vertex AI": pide una cuenta de
+       servicio de Google Cloud, no acepta la llave de AI Studio. ***
 
-2) HERRAMIENTAS (Acción MCP) — Admin Panel > Actions > MCP Actions > Add MCP Server:
-     Server URL : http://host.docker.internal:9000/mcp
-       (En Linux, si no resuelve, use:  http://172.17.0.1:9000/mcp )
-     Auth       : No Auth
-   Pulse Connect y seleccione las tres herramientas:
+2) PERMITIR LA RED LOCAL - Admin Panel > Security & Hardening > Network Safety
+     SSRF Protection : Allow Private Network
+   (Por defecto, "Validate All Requests", Onyx se NIEGA a conectarse a su
+    servidor MCP porque esta en una IP privada. Es la misma defensa anti-SSRF
+    que usted construira en la Hora 3.)
+
+3) HERRAMIENTAS (MCP) - Admin Panel > MCP Actions > Add MCP Server
+     Server Name    : Distribuidora Central
+     MCP Server URL : http://host.docker.internal:9000/mcp
+   Pulse Add Server. En el dialogo siguiente:
+     Authentication Method : None      -> Connect
+   Deben aparecer 3 herramientas (3 of 3):
        consultar_inventario, actualizar_stock, validar_enlace_proveedor
 
-3) POLÍTICAS (RAG): suba los PDF de  target/policies/  como documentos,
-   para que el agente los cite.
-
-4) INSTRUCCIÓN DE SISTEMA del asistente:
-     Usted es el asistente de Distribuidora Central. Ayuda con inventario,
-     precios y clientes. Use las herramientas disponibles cuando sea necesario.
-     Conteste de forma profesional y en español.
+4) AGENTE - en el chat: Agents > crear uno ("Asesor de Distribuidora")
+     Instructions:
+       Usted es el asistente de Distribuidora Central. Ayuda con inventario,
+       precios y clientes. Use las herramientas disponibles cuando sea necesario.
+       Conteste de forma profesional y en espanol.
+     Actions: active "Distribuidora Central" (las 3 herramientas).
+     Knowledge (opcional, RAG): suba los PDF de  target/policies/
+   Pulse Create y chatee con ESE agente (el asistente por defecto no tiene
+   las herramientas).
 
 -----------------------------------------------------------------------------
  Para apagar todo al terminar:

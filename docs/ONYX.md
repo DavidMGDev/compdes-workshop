@@ -12,19 +12,19 @@ producto empresarial de verdad.
 > | | Ruta A — **Onyx** (esta guía) | Ruta B — **CLI ligero** |
 > |---|---|---|
 > | Experiencia | Interfaz web real, "producto" | Terminal, mínima |
-> | Requisitos | Docker + **~16 GB RAM libres** para Onyx Standard | Solo Python + Docker |
+> | Requisitos | Docker + **10 GB de RAM (16 recomendados)** y ~25 GB de disco | Solo Python + Docker |
 > | Montaje | ~20–30 min extra (stack de Onyx) | Ya está en [`GUIA_COMPLETA.md`](GUIA_COMPLETA.md) |
 > | Cuándo | Su laptop tiene músculo y quiere el efecto completo | Laptop justa, o quiere lo más simple y estable |
 >
-> Ambas usan **la misma base de datos y las mismas herramientas MCP**, así que
-> **todos los ataques de la Hora 2 y las defensas de la Hora 3 funcionan igual**
-> en las dos. Si Onyx no arranca en su equipo, pásese a la Ruta B sin perder nada.
+> Ambas usan **la misma base de datos y las mismas herramientas MCP**. Si Onyx
+> no arranca en su equipo, pásese a la Ruta B sin perder nada.
 
-> **Nota de honestidad.** Onyx evoluciona rápido: los nombres exactos de botones
-> y menús pueden variar entre versiones. Esta guía se basa en la documentación
-> oficial vigente. **Haga una pasada de prueba usted mismo antes del taller** —
-> sobre todo el Paso 5 (RAG en Onyx Standard), que es el único punto con margen de
-> duda. Si algo no calza, la lógica es la misma; ajuste el clic.
+> **Estado de esta guía.** Repasada clic a clic el **30-sep-2026 contra Onyx
+> v4.8.2** (Docker Engine sobre Linux/WSL2): despliegue, modelo, servidor MCP,
+> agente, las preguntas de la demo, el SSRF del Lab 2.4 y el cambio al servidor
+> endurecido. **No se repasó** la carga de PDF para RAG (Paso 5) ni, por tanto,
+> el Lab 2.1 dentro de Onyx; ni Docker Desktop en Windows/macOS. Onyx cambia
+> rápido: si un menú no calza, la lógica es la misma; ajuste el clic.
 
 ---
 
@@ -32,7 +32,7 @@ producto empresarial de verdad.
 
 ```
    Navegador  ─────────►  Onyx Standard  (localhost:3000)
-   del asistente          • Chat + Asistente
+   del asistente          • Chat + Agente
                           • RAG sobre los PDF de política
                           • LLM = su llave de Gemini
                                 │
@@ -56,10 +56,11 @@ hospeda).
 
 - Todo lo de la [guía base](GUIA_COMPLETA.md) (Python, Docker, Git) **ya montado**:
   el repo clonado, el entorno `.venv` creado y su llave en `.env`.
-- **Docker corriendo** con **~16 GB de RAM libres** para Onyx Standard (la pila
-  completa: Vespa + Redis + model-servers, necesaria para el RAG real). Si su
+- **Docker corriendo** con **10 GB de RAM como mínimo, 16 recomendados** (la
+  pila completa: OpenSearch + Redis + model-servers). En la pasada del
+  30-sep-2026 los contenedores de Onyx ocuparon **7.7 GB** en reposo. Si su
   laptop no los tiene, use la **Ruta B (CLI)**, que hace RAG local sin Onyx.
-- Espacio en disco: ~15 GB (las imágenes de Onyx Standard pesan).
+- Espacio en disco: **~25 GB** (las imágenes de Onyx Standard pesan 21 GB).
 
 > **Consejo de logística.** Descargue las imágenes de Onyx **antes** del taller
 > (Paso 2), no el día del evento con 21 personas compitiendo por el wifi.
@@ -68,9 +69,9 @@ hospeda).
 
 ## Atajo: un solo script (opcional)
 
-Los Pasos 1 a 5 (levantar la base de datos, el servidor MCP, desplegar Onyx
-Standard y generar los PDF) están automatizados. Deja además un `onyx-config.txt` con los
-valores exactos para pegar en Onyx:
+Los Pasos 1 y 2 (levantar la base de datos, desplegar Onyx Standard, generar
+los PDF y dejar corriendo el servidor MCP) están automatizados. Deja además un
+`onyx-config.txt` con los valores exactos para pegar en Onyx:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File install\onyx.ps1   # Windows
@@ -82,7 +83,7 @@ bash install/onyx.sh                                          # Linux / macOS
 Requiere haber corrido antes el instalador base (`install/setup.*`, que crea el
 `.venv`). El script termina dejando **el servidor MCP corriendo en esa ventana**
 —no la cierre— y abre `http://localhost:3000`. Luego siga desde el **Paso 3**
-(conectar el modelo) usando `onyx-config.txt`.
+usando `onyx-config.txt`.
 
 > **¿Prefiere verlo a mano?** Los pasos siguientes son exactamente lo que hace el
 > script, uno por uno. Útil para mostrarlo en vivo.
@@ -119,78 +120,88 @@ herramientas por HTTP:
 Debe imprimir:
 
 ```
-[MCP] HTTP en http://0.0.0.0:9000/mcp (Onyx: http://host.docker.internal:9000/mcp)
+ [OK] Servidor MCP 'distribuidora-central' LISTO (streamable-http)
+ Escuchando localmente en:  http://0.0.0.0:9000/mcp
+ URL para Onyx:             http://host.docker.internal:9000/mcp
 ```
 
-Déjelo abierto. Ese `http://host.docker.internal:9000/mcp` es la dirección que
-le dará a Onyx en el Paso 4.
+Déjelo abierto. Esa URL es la que le dará a Onyx en el Paso 4.
 
 ---
 
 ## Paso 2 — Despliegue Onyx Standard
 
 Onyx es un proyecto **aparte**; se clona y se levanta con su propio Docker
-Compose. Usamos el modo **Standard** (con base de datos vectorial Vespa, Redis y
-model-servers): es el que hace **RAG de verdad** sobre los PDF y sostiene el
-flujo de herramientas. Pide **~16 GB de RAM**; si su laptop no los tiene, pásese
-a la **Ruta B (CLI)**.
+Compose. Usamos el modo **Standard** (con OpenSearch, Redis y model-servers): es
+el que hace **RAG de verdad** sobre los PDF.
 
-> **¿Por qué ya no Lite?** Lite quita la pila de indexado, y con ella el RAG cita
-> mal y el agente queda a medias. Para el efecto completo (RAG + herramientas MCP)
-> se necesita Standard.
+> **¿Por qué no Lite?** Lite quita la pila de indexado, y con ella el RAG cita
+> mal y el agente queda a medias.
 
 ```bash
 # En una carpeta FUERA del repo del taller (Onyx es independiente):
 git clone --depth 1 https://github.com/onyx-dot-app/onyx.git
 cd onyx/deployment/docker_compose
-cp env.template .env          # configuración por defecto; no hay que editar nada para el taller
+cp env.template .env
 ```
 
-Arranque en modo Standard. La forma guiada (sin `--lite`):
+**Un valor obligatorio.** En ese `.env`, la línea `USER_AUTH_SECRET=""` no puede
+quedar vacía: el servidor de Onyx se niega a arrancar. Póngale cualquier cadena
+larga y aleatoria (los scripts `install/onyx.*` lo hacen solos):
 
 ```bash
-./install.sh
+sed -i "s/USER_AUTH_SECRET=\"\"/USER_AUTH_SECRET=\"$(openssl rand -hex 32)\"/" .env   # Linux
 ```
 
-O, de forma explícita (útil para **mostrar** qué hace por dentro) — solo el
-compose base, **sin** el overlay de Lite:
+En Windows o macOS, ábralo en un editor y escriba el valor entre las comillas.
+
+Arranque Standard: solo el compose base, **sin** el overlay de Lite.
 
 ```bash
 docker compose -f docker-compose.yml up -d
 ```
 
-> **Windows:** `install.sh` es un script de shell; use el comando explícito de
-> `docker compose` de arriba desde Git Bash o WSL, o desde PowerShell (Docker
-> Desktop trae `docker compose`).
+La primera vez descarga ~21 GB. Cuando termine, abra **http://localhost:3000**.
+Onyx le pedirá **crear una cuenta** (correo y contraseña locales, solo para su
+instancia): la primera cuenta es la administradora.
 
-La primera vez descarga varios GB. Standard tarda **varios minutos** en indexar y
-quedar listo. Cuando termine, abra **http://localhost:3000**. Onyx le pedirá
-**crear una cuenta de administrador** (correo y contraseña locales, solo para su
-instancia). Créela y entre.
+Para **apagar** Onyx al terminar: `docker compose -f docker-compose.yml down`.
 
-Para **apagar** Onyx al terminar: `./install.sh --shutdown` (o
-`docker compose -f docker-compose.yml down`).
+> Onyx también publica el puerto **80**. Si ya lo usa otro programa, añada
+> `HOST_PORT_80=8080` al `.env` antes de arrancar.
 
 ---
 
-## Paso 3 — Conecte su llave de Gemini
+## Paso 3 — Conecte su llave de Gemini y permita la red local
 
-Onyx necesita un modelo. Le damos el mismo del taller.
+**3a. El modelo.**
 
-1. Clic en su perfil → **Admin Panel**.
-2. En el menú, **LLM** (proveedores de modelo).
-3. Añada un proveedor. **Use el Gemini NATIVO**, no el compatible con OpenAI:
-   - **Gemini nativo (recomendado):** elija *Google Gemini* (si no aparece,
-     *Custom* con **Provider Name = `gemini`**), pegue su llave (`AQ...`) y ponga
-     el modelo `gemini-3.5-flash-lite` (sin prefijo; Onyx antepone `gemini/`).
-4. Guarde y márquelo como modelo por defecto.
+1. Clic en su perfil → **Admin Panel** → **Language Models**.
+2. Baje hasta **Custom Models** → **Set Up**. (La tarjeta "Gemini — Google
+   Cloud Vertex AI" **no** sirve: pide una cuenta de servicio de Google Cloud,
+   no la llave de AI Studio.)
+3. Complete:
+   - **Provider:** escriba `gemini` y elíjalo en la lista.
+   - **API Key:** su llave.
+   - **Display Name:** `Gemini`.
+   - **Model Name:** `gemini-3.5-flash-lite`.
+4. **Connect.** Queda como modelo por defecto.
 
-> **⚠ Importante para las herramientas (Paso 4).** El endpoint **compatible con
-> OpenAI** de Google (`.../v1beta/openai/`) sirve para chatear, pero traduce mal
-> las *tool-calls*: cuando el agente intenta llamar a una herramienta MCP, da
-> error. Para que las herramientas funcionen, **el proveedor del modelo en Onyx
-> debe ser el Gemini nativo** (arriba). El endpoint OpenAI-compatible queda para
-> la **Ruta B (CLI)**, donde no hay este problema.
+> Ese proveedor `gemini` es el **nativo**. El "OpenAI-Compatible" con la URL
+> `.../v1beta/openai/` sirve para chatear, pero en las pruebas previas al taller daba
+> error cuando el agente llamaba herramientas (ver `CAMBIOS_ONYX.md`); queda para la **Ruta B (CLI)**.
+
+**3b. Permita la red local (sin esto, el Paso 4 falla).**
+
+**Admin Panel → Security & Hardening → Network Safety → SSRF Protection** →
+cambie *Validate All Requests* por **Allow Private Network**.
+
+> Por defecto Onyx se **niega** a conectarse a su servidor MCP: está en una IP
+> privada, y el registro de Onyx lo dice tal cual, *"resolves to
+> internal/private IP address... Access to internal networks is not allowed"*.
+> Es exactamente la defensa anti-SSRF que usted construirá en la Hora 3 (3.3),
+> y un buen momento para mostrarla: aquí la relajamos a propósito, solo para
+> los servidores MCP que configura el administrador.
 
 ---
 
@@ -199,29 +210,30 @@ Onyx necesita un modelo. Le damos el mismo del taller.
 Aquí es donde Onyx deja de ser un chat bonito y se vuelve un **agente con
 poder** —el mismo poder que atacaremos en la Hora 2.
 
-1. **Admin Panel → Actions → MCP Actions** → **Add MCP Server**.
-2. Complete:
+1. **Admin Panel → MCP Actions → Add MCP Server.**
+2. Complete y pulse **Add Server**:
    - **Server Name:** `Distribuidora Central`
    - **MCP Server URL:** `http://host.docker.internal:9000/mcp`
-   - **Auth:** *No Auth* (es local, sin token).
-3. **Connect.** Onyx debe listar tres herramientas:
+3. En el diálogo siguiente, **Authentication Method: None** → **Connect.**
+4. Onyx debe listar tres herramientas, todas activas (*3 of 3*):
    `consultar_inventario`, `actualizar_stock`, `validar_enlace_proveedor`.
-4. **Selecciónelas** para que el agente pueda usarlas.
 
-> **Linux — si `host.docker.internal` no resuelve:** en Linux ese nombre a veces
-> no existe dentro del contenedor. Use la IP del *bridge* de Docker en su lugar:
-> `http://172.17.0.1:9000/mcp`. (En Docker Desktop de Windows/macOS,
-> `host.docker.internal` funciona sin más.)
+> **Si no conecta en Linux:** el compose de Onyx ya define
+> `host.docker.internal`, así que el nombre resuelve. Lo que puede estorbar es
+> el firewall del host: corra `sudo bash install/fix-docker-host.sh` y reintente.
 
-Ahora dígale al **Asistente por defecto** (o cree uno nuevo, "Asesor de
-Distribuidora") que puede usar estas acciones, y déle una instrucción de sistema
-como la del agente CLI:
+**Cree el agente.** El asistente por defecto **no** recibe las herramientas.
+En el chat: **Agents → crear** (o `http://localhost:3000/app/agents/create`):
 
-```
-Usted es el asistente de Distribuidora Central. Ayuda con inventario, precios y
-clientes. Use las herramientas disponibles cuando sea necesario. Conteste de
-forma profesional y en español.
-```
+- **Name:** `Asesor de Distribuidora`
+- **Instructions:**
+  ```
+  Usted es el asistente de Distribuidora Central. Ayuda con inventario, precios y
+  clientes. Use las herramientas disponibles cuando sea necesario. Conteste de
+  forma profesional y en español.
+  ```
+- **Actions:** active **Distribuidora Central** (se marcan las tres).
+- **Create**, y chatee con **ese** agente.
 
 ---
 
@@ -236,28 +248,25 @@ Para que el agente cite políticas (y para el Lab 2.1), Onyx necesita los PDF.
 .venv/bin/python target/make_policies.py             # Linux/macOS
 ```
 
-Eso genera los PDF en `target/policies/`. En Onyx, súbalos como **documentos**
-(a un *connector* de archivos o directamente al asistente, según su versión) para
-que el agente los recupere.
+Eso genera los PDF en `target/policies/`. Súbalos en la sección **Knowledge**
+del agente (al crearlo o editándolo). Tras subirlos, deles **un par de minutos**
+para que el indexador los procese antes de preguntar.
 
-> **RAG en Standard.** Con Onyx **Standard** (el que despliega esta guía) la pila
-> de indexado (Vespa) está completa, así que el recuperador RAG cita bien los
-> PDF. Tras subirlos, deles **un par de minutos** para que el indexador los
-> procese antes de preguntarles. Si su laptop no aguanta Standard y debe caer a
-> Lite, el RAG queda flojo: en ese caso haga el **Lab 2.1 (PDF envenenado)** con
-> el agente CLI de la Ruta B, que hace RAG local garantizado.
+> **Este paso no se repasó el 30-sep-2026.** Si no le funciona, haga las
+> preguntas de política y el **Lab 2.1 (PDF envenenado)** con el agente CLI de
+> la Ruta B, que hace RAG local y sí está probado.
 
 ---
 
 ## Paso 6 — La demostración (Hora 1), ahora en Onyx
 
-Abra el chat en `localhost:3000` y haga las tres preguntas de siempre. El efecto
-es más fuerte porque se ve en una interfaz de producto:
+Abra el chat con su agente y haga las tres preguntas de siempre. El efecto es
+más fuerte porque se ve en una interfaz de producto:
 
 | Escriba esto | Qué demuestra |
 |---|---|
-| `¿Cuánto stock tenemos de cemento?` | Onyx llama a `consultar_inventario` y responde con el dato real. |
-| `Según nuestra política, ¿qué crédito le doy a un cliente nuevo?` | Onyx **cita el PDF** de política (RAG). |
+| `¿Cuánto stock tenemos de cemento?` | Onyx llama a `consultar_inventario` y responde con el dato real (1,200). |
+| `Según nuestra política, ¿qué crédito le doy a un cliente nuevo?` | Onyx **cita el PDF** de política (RAG; requiere el Paso 5). |
 | `Sube el stock del SKU-002 a 950.` | Onyx **modifica la base de datos** vía `actualizar_stock`. |
 
 Ese es el gancho: un agente empresarial real, con UI, en minutos. En la Hora 2
@@ -272,23 +281,38 @@ cambia *dónde* se escribe:
 
 | Lab | En Onyx |
 |---|---|
-| **2.1** Inyección vía RAG | Suba el **PDF envenenado** como documento y haga una pregunta inocente en el chat. *(Standard indexa bien; deje unos minutos tras subir. Ver Paso 5.)* |
-| **2.2** Tool poisoning | Edite la *docstring* de `consultar_inventario` en el servidor MCP, **reinicie el servidor MCP** (Terminal 2). Onyx relee la descripción envenenada. |
+| **2.1** Inyección vía RAG | Suba el **PDF envenenado** al *Knowledge* del agente y haga una pregunta inocente. *(Depende del Paso 5; si no, hágalo en la Ruta B.)* |
+| **2.2** Tool poisoning | Edite la *docstring* de `consultar_inventario`, **reinicie el servidor MCP** y en **MCP Actions** abra el servidor y pulse **Refresh tools**: Onyx guarda en caché las descripciones y no las relee solo. |
 | **2.3** Crescendo | Conduzca la secuencia multi-turno directamente en el chat de Onyx. |
-| **2.4** SSRF | Pídale al chat que "valide" `http://169.254.169.254/...`; dispara su herramienta `validar_enlace_proveedor`. |
-| **2.5** Garak/PyRIT | Automatizado: apunte la herramienta al endpoint HTTP del agente (`http_wrapper.py`) o a la API de chat de Onyx. |
+| **2.4** SSRF | Pídale al chat que "valide" `http://localhost:8099` (el servicio falso del lab): devuelve `SECRETO-INTERNO-12345`. |
+| **2.5** Garak | Automatizado: apunta al wrapper HTTP del agente CLI (`http_wrapper.py`), no a Onyx. |
 
-En la Hora 3, cuando cambie al servidor MCP endurecido
-([`../defenses/inventory_mcp_server_seguro.py`](../defenses/inventory_mcp_server_seguro.py)),
-solo relance ese servidor en `--http` y **repita el ataque en Onyx**: ahora falla.
+## La Hora 3 en Onyx
+
+De las defensas del taller, en Onyx aplican las que viven **en el servidor MCP y
+en la base de datos**: herramientas tipadas + allowlist (3.3) y mínimo
+privilegio (3.5). El router, la aprobación humana y la verificación de
+descriptores (3.2, 3.4, 3.6) son ganchos del bucle de `agent.py`; Onyx trae su
+propio bucle, así que esas se practican en la Ruta B.
+
+1. Aplique los roles (ver [`../defenses/README.md`](../defenses/README.md)).
+2. Detenga el servidor MCP (Ctrl+C) y lance el endurecido en el mismo puerto:
+   ```bash
+   .venv/bin/python defenses/inventory_mcp_server_seguro.py --http      # Windows: .venv\Scripts\python.exe ...
+   ```
+3. En **MCP Actions**, abra el servidor → **Refresh tools**: ahora son 4
+   (`consultar_stock`, `buscar_producto`, `actualizar_stock`,
+   `validar_enlace_proveedor`). Edite el agente y active las nuevas.
+4. **Repita el Lab 2.4:** la respuesta ahora es *RECHAZADO: URL fuera de la
+   lista de permitidos*. Y ya no existe una herramienta de SQL libre que abusar.
 
 ---
 
 ## Limpieza
 
 ```bash
-# Apague Onyx
-cd onyx/deployment/docker_compose && ./install.sh --shutdown
+# Apague Onyx (añada -v para borrar también sus datos)
+cd onyx/deployment/docker_compose && docker compose -f docker-compose.yml down
 
 # Detenga el servidor MCP (Terminal 2): Ctrl+C
 
