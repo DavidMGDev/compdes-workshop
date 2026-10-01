@@ -1,0 +1,35 @@
+# ¿El taller sigue funcionando? Instala las dependencias desde cero (las
+# versiones de HOY, no las de cuando se escribió) y corre los niveles de
+# tests/ que no gastan llave: sin red de modelo y con la base de datos.
+#
+# Corre en cada push y cada lunes: así una versión nueva de una dependencia que
+# rompa el taller (como pasó con mcp 2.0) se detecta sola.
+name: Verificar el taller
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 12 * * 1"
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencias (igual que install/setup.sh)
+        run: |
+          python -m pip install --upgrade pip
+          # PyTorch solo-CPU: evita descargar ~2 GB de CUDA que aquí no se usan.
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+      - name: Base de datos del taller
+        run: |
+          cd target
+          docker compose up -d --wait
+      - name: Pruebas (niveles sin llave)
+        run: python -m unittest discover tests -v
