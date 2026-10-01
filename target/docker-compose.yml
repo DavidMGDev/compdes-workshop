@@ -20,7 +20,9 @@ services:
       POSTGRES_PASSWORD: app_password_123
       POSTGRES_DB: distribuidora
     ports:
-      - "5433:5432"
+      # Solo 127.0.0.1: la base tiene una contraseña pública (está en este repo)
+      # y no debe quedar abierta a la red del salón.
+      - "127.0.0.1:5433:5432"
     volumes:
       # :ro = solo lectura. seed.sql se ejecuta una vez, al primer arranque.
       - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro

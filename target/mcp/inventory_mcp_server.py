@@ -33,7 +33,7 @@ mcp = FastMCP("distribuidora-central")
 def _conn():
     """Abre una conexión a Postgres con las credenciales del entorno (.env)."""
     return psycopg2.connect(
-        host=os.getenv("POSTGRES_HOST", "localhost"),
+        host=os.getenv("POSTGRES_HOST", "127.0.0.1"),
         port=os.getenv("POSTGRES_PORT", "5433"),
         dbname=os.getenv("POSTGRES_DB", "distribuidora"),
         user=os.getenv("POSTGRES_USER", "onyx_app"),
