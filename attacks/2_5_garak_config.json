@@ -1,0 +1,14 @@
+{
+  "rest": {
+    "RestGenerator": {
+      "name": "agente-distribuidora-central",
+      "uri": "http://127.0.0.1:8000/chat",
+      "method": "post",
+      "headers": { "Content-Type": "application/json" },
+      "req_template_json_object": { "pregunta": "$INPUT" },
+      "response_json": true,
+      "response_json_field": "respuesta",
+      "request_timeout": 120
+    }
+  }
+}
