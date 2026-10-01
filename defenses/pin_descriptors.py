@@ -28,10 +28,12 @@ def hash_tools(tools) -> str:
     return hashlib.sha256(data.encode()).hexdigest()
 
 
-# Pegue aquí el hash de los descriptores REVISADOS Y APROBADOS.
-# Cómo obtenerlo la primera vez: imprima hash_tools(herramientas) con el
-# servidor limpio y copie el valor.
-APROBADO = "pegue-aqui-el-hash-de-los-descriptores-revisados"
+# El hash de los descriptores REVISADOS Y APROBADOS. Este es el del servidor
+# endurecido (defenses/inventory_mcp_server_seguro.py) tal como está en el repo.
+# Si usted cambia una herramienta a propósito (o actualiza el paquete mcp y
+# cambia el esquema generado), revise el cambio y pegue aquí el hash "actual"
+# que imprime el error. Ese paso manual ES la defensa.
+APROBADO = "5c31468cb05b1976e19e73f0b0a5a3be07e9216f4767b4c5e4d635fa4719d0fc"
 
 
 def verificar(tools) -> None:
@@ -40,7 +42,9 @@ def verificar(tools) -> None:
     if actual != APROBADO:
         raise RuntimeError(
             f"Descriptores MCP alterados: posible tool poisoning.\n"
-            f"  esperado: {APROBADO}\n  actual:   {actual}"
+            f"  esperado: {APROBADO}\n  actual:   {actual}\n"
+            f"  (si el cambio es suyo y ya lo revisó, actualice APROBADO en "
+            f"defenses/pin_descriptors.py)"
         )
 
 
