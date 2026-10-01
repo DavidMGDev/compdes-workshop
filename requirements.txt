@@ -1,6 +1,6 @@
 # Dependencias base del taller (Hora 1 y labs manuales).
-# PyRIT y Garak van en SUS PROPIOS entornos virtuales (ver docs/SETUP.md):
-# tienen conflictos de dependencias con estas y entre sí.
+# Garak va en SU PROPIO entorno virtual (ver docs/SETUP.md): tiene conflictos
+# de dependencias con estas.
 #
 # Versiones fijadas al piso que se probó; «>=» permite parches menores.
 openai>=1.30
