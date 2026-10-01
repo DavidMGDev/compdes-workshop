@@ -16,8 +16,13 @@ USO:
     #   Linux/macOS:  AGENT_MODEL=gemini-3.5-flash-lite python target/agent/http_wrapper.py
     #   Windows PS:    $env:AGENT_MODEL="gemini-3.5-flash-lite"; python target/agent/http_wrapper.py
 
+    # Hora 3: el mismo wrapper, sirviendo el agente blindado (defenses/agent_seguro.py):
+    #   Linux/macOS:  AGENTE=seguro python target/agent/http_wrapper.py
+    #   Windows PS:    $env:AGENTE="seguro"; python target/agent/http_wrapper.py
+
 Contrato HTTP (lo que esperan las herramientas):
     POST /chat   {"pregunta": "..."}      -> {"respuesta": "..."}
+                 {"pregunta": "...", "historial": [{"role": "user", "content": "..."}, ...]}
     GET  /health                          -> {"ok": true, "modelo": "..."}
 """
 import asyncio
@@ -31,6 +36,12 @@ from pydantic import BaseModel
 sys.path.insert(0, os.path.dirname(__file__))
 import agent  # noqa: E402
 import rag     # noqa: E402
+
+# AGENTE=seguro -> las mismas rutas HTTP, pero con el chat de la Hora 3.
+if os.getenv("AGENTE") == "seguro":
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "defenses"))
+    import agent_seguro  # noqa: E402
+    agent.chat = agent_seguro.chat
 
 app = FastAPI(title="Agente Distribuidora Central (wrapper)")
 
@@ -50,25 +61,29 @@ class Peticion(BaseModel):
     # herramientas). Al menos uno debe venir.
     pregunta: str | None = None
     prompt: str | None = None
+    # Turnos previos (formato OpenAI). Opcional: lo usa quien conduce un ataque
+    # multi-turno (Crescendo) y debe reenviar la conversación en cada petición.
+    historial: list[dict] = []
 
 
 @app.get("/health")
 def health():
     """Sonda de vida: útil para saber que el wrapper ya está listo."""
-    return {"ok": True, "modelo": agent.MODEL, "fragmentos": _INDEXADO["n"]}
+    return {"ok": True, "modelo": agent.MODEL, "fragmentos": _INDEXADO["n"],
+            "agente": os.getenv("AGENTE", "vulnerable")}
 
 
 @app.post("/chat")
 def chat(p: Peticion):
     """Recibe una pregunta, la pasa por el agente y devuelve la respuesta.
 
-    Sin historial: cada petición es independiente. Es lo que quieren las
-    herramientas de red-teaming (cada prueba parte de cero), salvo PyRIT
-    Crescendo, que maneja su propio hilo multi-turno del lado atacante.
+    El wrapper no guarda estado: cada petición es independiente, que es lo que
+    quieren las herramientas de red-teaming (cada prueba parte de cero). Un
+    ataque multi-turno (Crescendo) manda su propio `historial` en cada petición.
     """
     texto = p.pregunta or p.prompt or ""
     # agent.chat es asíncrono; lo corremos en un loop nuevo por petición.
-    respuesta = asyncio.run(agent.chat([], texto))
+    respuesta = asyncio.run(agent.chat(p.historial, texto))
     return {"respuesta": respuesta}
 
 
