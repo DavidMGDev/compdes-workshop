@@ -16,7 +16,7 @@ saltarse nada.
 
 > **Dos rutas, usted elige.** Esta guía monta el agente en su forma **ligera**
 > (línea de comandos): funciona en cualquier laptop y es la más estable. Si su
-> equipo tiene músculo (Docker + ~16 GB de RAM libres) y quiere el efecto completo
+> equipo tiene músculo (Docker + 10 GB de RAM, 16 recomendados) y quiere el efecto completo
 > —el agente en una **interfaz web de producto real (Onyx)**—, primero complete
 > los Pasos 1 a 6 de aquí (son la base común) y luego siga
 > **[ONYX.md](ONYX.md)** en lugar del Paso 7. Los ataques de la Hora 2 y las
@@ -34,7 +34,7 @@ instaladas:
 | **Python** (3.11 o superior) | Ejecuta el código del agente y los scripts | Sí |
 | **Docker** | Levanta la base de datos de la PyME en un contenedor aislado | Sí |
 | **Git** | Descarga el código del taller desde GitHub | Sí |
-| **Node.js** (20+) | Solo para las herramientas de las Horas 2 y 3 (Garak/Promptfoo) | Opcional |
+| **Node.js** (22+) | Solo para Promptfoo (Hora 3, defensa 3.7) | Opcional |
 
 Además, cada asistente necesita **una llave de API** (se la entrega el tutor) y
 conexión a internet.
@@ -152,7 +152,7 @@ OPENAI_API_KEY=PEGUE_SU_LLAVE_AQUI
 ```
 
 Reemplace `PEGUE_SU_LLAVE_AQUI` por la llave que le dio el tutor (empieza con
-`AQ.`). Guarde el archivo. Debe quedar así:
+`AQ.`; las llaves antiguas, con `AIza`). Guarde el archivo. Debe quedar así:
 
 ```
 OPENAI_API_KEY=AQ.Ab8RN6...el-resto-de-su-llave
@@ -274,7 +274,7 @@ levantar todo con el Paso 6 cuando quiera.
 |---|---|---|
 | `python: command not found` | Python no quedó en el PATH | En Windows, reinstale marcando "Add Python to PATH". En Linux use `python3`. |
 | `check_key.py` → `401 UNAUTHENTICATED` | Llave mal copiada | Cópiela completa, sin espacios ni saltos de línea, en el `.env`. |
-| `check_key.py` → `429 ... credits are depleted` | El presupuesto del grupo se agotó | Avise al tutor. No es un error de su código. |
+| `check_key.py` → `402` o `429 ... credits are depleted` | El presupuesto del grupo se agotó | Avise al tutor. No es un error de su código. |
 | `check_key.py` → `404 ... model` | El `AGENT_MODEL` del `.env` se modificó | Debe decir `gemini-3.5-flash-lite`. |
 | `docker: ... daemon ... not running` | Docker no está encendido | En Windows, abra Docker Desktop y espere a "Engine running". |
 | `docker compose` → `permission denied` (Linux) | Falta el permiso del grupo docker | `sudo usermod -aG docker $USER` y vuelva a iniciar sesión. |

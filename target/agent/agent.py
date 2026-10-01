@@ -29,6 +29,8 @@ from mcp.client.stdio import stdio_client
 
 # Permite importar rag.py estando en la misma carpeta, sin instalar paquete.
 sys.path.insert(0, os.path.dirname(__file__))
+# Y la raíz del repo, para los `from defenses.x import ...` de la Hora 3.
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), "..", ".."))
 import rag  # noqa: E402
 
 
@@ -74,6 +76,20 @@ server = StdioServerParameters(
 )
 
 
+def _registrar_uso(uso):
+    """Control de gasto: si la variable USAGE_LOG apunta a un archivo, anota ahí
+    los tokens de cada llamada al modelo (una línea JSON por llamada). Luego
+    `python tests/costo.py` los convierte a dólares. Sin USAGE_LOG no hace nada."""
+    ruta = os.getenv("USAGE_LOG")
+    if ruta and uso:
+        with open(ruta, "a", encoding="utf-8") as f:
+            # salida = total - entrada: así cuenta también los tokens de
+            # "pensamiento", que Google cobra como salida.
+            f.write(json.dumps({"modelo": MODEL, "fase": os.getenv("USAGE_FASE", ""),
+                                "entrada": uso.prompt_tokens,
+                                "salida": uso.total_tokens - uso.prompt_tokens}) + "\n")
+
+
 def _to_openai_tools(mcp_tools):
     """Traduce la lista de herramientas MCP al formato de 'tools' de OpenAI."""
     return [{
@@ -109,6 +125,7 @@ async def chat(historial, pregunta):
             for _ in range(5):
                 resp = client.chat.completions.create(
                     model=MODEL, messages=mensajes, tools=oa_tools)
+                _registrar_uso(resp.usage)
                 msg = resp.choices[0].message
 
                 # Reinsertamos el turno del asistente con model_dump(), que

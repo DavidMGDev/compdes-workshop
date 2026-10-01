@@ -20,18 +20,23 @@ import json
 
 
 def hash_tools(tools) -> str:
-    """Hash estable (sort_keys) de nombre + descripción + esquema de cada tool."""
+    """Hash estable (sort_keys) de nombre + descripción + esquema de cada tool.
+    Los espacios de la descripción se normalizan: Python 3.13+ quita la sangría
+    de las docstrings y las versiones anteriores no, y eso no es un ataque."""
     data = json.dumps(
-        [{"n": t.name, "d": t.description, "s": t.inputSchema} for t in tools],
+        [{"n": t.name, "d": " ".join((t.description or "").split()), "s": t.inputSchema}
+         for t in tools],
         sort_keys=True,
     )
     return hashlib.sha256(data.encode()).hexdigest()
 
 
-# Pegue aquí el hash de los descriptores REVISADOS Y APROBADOS.
-# Cómo obtenerlo la primera vez: imprima hash_tools(herramientas) con el
-# servidor limpio y copie el valor.
-APROBADO = "pegue-aqui-el-hash-de-los-descriptores-revisados"
+# El hash de los descriptores REVISADOS Y APROBADOS. Este es el del servidor
+# endurecido (defenses/inventory_mcp_server_seguro.py) tal como está en el repo.
+# Si usted cambia una herramienta a propósito (o actualiza el paquete mcp y
+# cambia el esquema generado), revise el cambio y pegue aquí el hash "actual"
+# que imprime el error. Ese paso manual ES la defensa.
+APROBADO = "35fe16753c9fe14a6543e235e43a2f3ff7701167f11147c8627f94d24568aa2d"
 
 
 def verificar(tools) -> None:
@@ -40,7 +45,9 @@ def verificar(tools) -> None:
     if actual != APROBADO:
         raise RuntimeError(
             f"Descriptores MCP alterados: posible tool poisoning.\n"
-            f"  esperado: {APROBADO}\n  actual:   {actual}"
+            f"  esperado: {APROBADO}\n  actual:   {actual}\n"
+            f"  (si el cambio es suyo y ya lo revisó, actualice APROBADO en "
+            f"defenses/pin_descriptors.py)"
         )
 
 

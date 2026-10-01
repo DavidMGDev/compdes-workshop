@@ -33,7 +33,7 @@ mcp = FastMCP("distribuidora-central")
 def _conn():
     """Abre una conexión a Postgres con las credenciales del entorno (.env)."""
     return psycopg2.connect(
-        host=os.getenv("POSTGRES_HOST", "localhost"),
+        host=os.getenv("POSTGRES_HOST", "127.0.0.1"),
         port=os.getenv("POSTGRES_PORT", "5433"),
         dbname=os.getenv("POSTGRES_DB", "distribuidora"),
         user=os.getenv("POSTGRES_USER", "onyx_app"),
@@ -44,7 +44,12 @@ def _conn():
 @mcp.tool()
 def consultar_inventario(consulta_sql: str) -> str:
     """Ejecuta una consulta SQL sobre la base de datos de inventario y clientes.
-    Use esta herramienta para responder preguntas sobre stock, precios y clientes."""
+    Use esta herramienta para responder preguntas sobre stock, precios y clientes.
+
+    Tablas (PostgreSQL):
+      inventario(sku, producto, stock, precio_unit, costo_unit)
+      clientes(id, nombre, credito_max, telefono, notas_internas)
+    Para buscar por nombre use ILIKE, p. ej. producto ILIKE '%cemento%'."""
     # ⚠ VULNERABLE A PROPÓSITO: acepta SQL arbitrario y permite escritura.
     #   Un atacante puede leer columnas sensibles (notas_internas) o destruir
     #   datos (UPDATE/DELETE). Se blinda en la Hora 3 (herramientas tipadas).
@@ -84,54 +89,6 @@ def validar_enlace_proveedor(url: str) -> str:
 
 
 if __name__ == "__main__":
-    import sys
-    from mcp.server.transport_security import TransportSecuritySettings
-
-    use_sse = any(arg in sys.argv for arg in ["--sse", "-sse", "sse"])
-    use_http = any(arg in sys.argv for arg in ["--http", "-http", "http"])
-
-    if use_http or use_sse:
-        port = int(os.getenv("MCP_HTTP_PORT", "9000"))
-        mcp.settings.host = "0.0.0.0"
-        mcp.settings.port = port
-        transport_mode = "sse" if use_sse else "streamable-http"
-        endpoint_path = "/sse" if use_sse else "/mcp"
-
-        # Permitir conexiones desde contenedores Docker (Onyx) además de localhost.
-        # Sin esto, el middleware de seguridad DNS rebinding rechaza las peticiones
-        # con Host: host.docker.internal o Host: 172.x.x.x con 421 Misdirected.
-        mcp.settings.transport_security = TransportSecuritySettings(
-            enable_dns_rebinding_protection=True,
-            allowed_hosts=[
-                "127.0.0.1:*",
-                "localhost:*",
-                "[::1]:*",
-                "host.docker.internal:*",   # Docker Desktop / Linux host-gateway
-                "172.17.0.1:*",             # docker0 bridge gateway
-                "172.19.0.1:*",             # onyx_default bridge gateway
-                f"0.0.0.0:{port}",          # bind address
-            ],
-            allowed_origins=[
-                "http://127.0.0.1:*",
-                "http://localhost:*",
-                "http://[::1]:*",
-                "http://host.docker.internal:*",
-                "http://172.17.0.1:*",
-                "http://172.19.0.1:*",
-            ],
-        )
-
-        print("\n============================================================", flush=True)
-        print(f" [OK] Servidor MCP de Distribuidora Central LISTO ({transport_mode})", flush=True)
-        print(f" Escuchando localmente en:  http://0.0.0.0:{port}{endpoint_path}", flush=True)
-        print(f" URL para Onyx:             http://host.docker.internal:{port}{endpoint_path}", flush=True)
-        print(f" (Si falla en Linux prueba): http://172.17.0.1:{port}{endpoint_path}", flush=True)
-        print("============================================================", flush=True)
-        print(" -> Mantenga esta terminal abierta mientras trabaja en la Ruta A.\n", flush=True)
-
-        mcp.run(transport=transport_mode)
-    else:
-        # mcp.run() arranca el bucle de servidor sobre stdio (modo por defecto).
-        mcp.run()
-
-
+    # stdio por defecto; HTTP con --http (ver transporte.py, misma carpeta).
+    from transporte import servir
+    servir(mcp)

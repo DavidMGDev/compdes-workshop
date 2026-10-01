@@ -1,0 +1,6 @@
+# Tope de gasto para Garak (Lab 2.5): cuántos prompts manda, como máximo,
+# CADA sonda. Sin este archivo el tope por defecto es 256, y la familia
+# promptinject tiene 3 sondas activas: 3 x 256 = 768 prompts.
+# Con 20 son 60 prompts: suficiente para ver el reporte por centavos.
+run:
+  soft_probe_prompt_cap: 20

@@ -85,7 +85,7 @@ Taller de Seguridad de Agentes MCP/RAG · COMPDES 2026</p>
 
 <h2><span class="step">2</span>Colóquela en el archivo <code>.env</code></h2>
 
-<p>En la raíz de su laboratorio (<code>~/compdes-lab</code>), cree o edite el archivo <code>.env</code>:</p>
+<p>En la raíz de su laboratorio (<code>compdes-workshop</code>), cree o edite el archivo <code>.env</code>:</p>
 
 <pre><code>OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
 OPENAI_API_KEY=AQ.Ab8RN6...su-llave-aquí
@@ -94,7 +94,7 @@ AGENT_MODEL=gemini-3.5-flash-lite
 POSTGRES_USER=onyx_app
 POSTGRES_PASSWORD=app_password_123
 POSTGRES_DB=distribuidora
-POSTGRES_HOST=localhost
+POSTGRES_HOST=127.0.0.1
 POSTGRES_PORT=5433</code></pre>
 
 <p>Usamos el <strong>endpoint compatible con OpenAI</strong> de Google. Así todo el código del taller funciona sin cambios: solo cambian esas tres primeras variables.</p>
@@ -158,7 +158,7 @@ print(resp.choices[0].message.content)</code></pre>
     <td>Cópiela de nuevo, completa, sin espacios ni saltos de línea.</td>
   </tr>
   <tr>
-    <td><code>429 RESOURCE_EXHAUSTED</code><br><span style="color:var(--muted)">«prepayment credits are depleted»</span></td>
+    <td><code>402 Payment Required</code> o <code>429 RESOURCE_EXHAUSTED</code><br><span style="color:var(--muted)">«prepayment credits are depleted»</span></td>
     <td>Se agotó el presupuesto del grupo.</td>
     <td>Avise al tutor. No es culpa de su código.</td>
   </tr>
@@ -175,32 +175,33 @@ print(resp.choices[0].message.content)</code></pre>
 </table>
 </div>
 
-<h2><span class="step">4</span>Use la llave en Onyx Lite (Ruta A)</h2>
+<h2><span class="step">4</span>Use la llave en Onyx (Ruta A)</h2>
 
 <p>Esta es la <strong>ruta completa</strong>: el agente en una interfaz web real.
 La guía detallada, paso a paso, está en <code>docs/ONYX.md</code>. En resumen,
-tras desplegar Onyx Lite y abrir <code>http://localhost:3000</code>:</p>
+tras desplegar Onyx Standard y abrir <code>http://localhost:3000</code>:</p>
 
 <ol>
-  <li>Cree su cuenta de administrador local.</li>
-  <li><strong>Admin Panel → LLM.</strong> Agregue un proveedor <strong>OpenAI-compatible</strong>:
+  <li>Cree su cuenta (la primera es la administradora).</li>
+  <li><strong>Admin Panel → Language Models → Custom Models → Set Up.</strong>
     <ul>
-      <li><strong>Base URL:</strong> <code>https://generativelanguage.googleapis.com/v1beta/openai/</code></li>
-      <li><strong>API Key:</strong> su llave <code>AQ.Ab8RN6...</code></li>
-      <li><strong>Model name:</strong> <code>gemini-3.5-flash-lite</code></li>
+      <li><strong>Provider:</strong> <code>gemini</code> (el nativo; no el "OpenAI-Compatible", que falla al llamar herramientas)</li>
+      <li><strong>API Key:</strong> su llave</li>
+      <li><strong>Model Name:</strong> <code>gemini-3.5-flash-lite</code></li>
     </ul>
   </li>
-  <li><strong>Admin Panel → Actions → MCP Actions → Add MCP Server</strong> (esto le da
+  <li><strong>Admin Panel → Security &amp; Hardening → SSRF Protection → Allow Private Network.</strong>
+    Sin esto Onyx se niega a conectarse a su servidor MCP local.</li>
+  <li><strong>Admin Panel → MCP Actions → Add MCP Server</strong> (esto le da
     herramientas al agente). Primero arranque el servidor MCP en modo HTTP:
     <code>python target/mcp/inventory_mcp_server.py --http</code>. Luego, en Onyx:
     <ul>
-      <li><strong>MCP Server URL:</strong> <code>http://host.docker.internal:9000/mcp</code>
-        (en Linux, si no resuelve: <code>http://172.17.0.1:9000/mcp</code>)</li>
-      <li><strong>Auth:</strong> No Auth. Conecte y seleccione las tres herramientas.</li>
+      <li><strong>MCP Server URL:</strong> <code>http://host.docker.internal:9000/mcp</code></li>
+      <li><strong>Authentication Method:</strong> None → Connect. Deben aparecer las tres herramientas.</li>
     </ul>
   </li>
-  <li>Suba los PDF de <code>target/policies/</code> como documentos y lance la pregunta:
-    <br><em>«¿Cuál es el plazo máximo de crédito que podemos otorgar a un cliente nuevo según nuestra política?»</em></li>
+  <li>Cree un <strong>agente</strong> con esas acciones activadas y pregúntele:
+    <br><em>«¿Cuánto stock tenemos de cemento?»</em></li>
 </ol>
 
 <p>El agente debe responder <strong>citando el PDF</strong> y poder consultar/actualizar
@@ -209,13 +210,13 @@ en <code>docs/ONYX.md</code>.</p>
 
 <h2><span class="step">5</span>Use la llave en el objetivo controlable (1B)</h2>
 
-<p>El agente en Python lee las variables del <code>.env</code>. Cárguelas antes de ejecutarlo:</p>
+<p>El agente en Python (<code>target/agent/agent.py</code>) lee el <code>.env</code> por sí solo: no hay que cargar nada. Solo si quiere usar las variables en <strong>su propia</strong> terminal (por ejemplo, para el <code>curl</code> del paso 3), cárguelas así:</p>
 
 <pre><code># Linux / macOS
-set -a && source ~/compdes-lab/.env && set +a
+set -a && source .env && set +a      # desde la carpeta compdes-workshop
 
 # Windows PowerShell
-Get-Content "$HOME\compdes-lab\.env" | ForEach-Object {
+Get-Content .env | ForEach-Object {
   if ($_ -match '^\s*([^#][^=]*)=(.*)$') {
     [Environment]::SetEnvironmentVariable($Matches[1].Trim(), $Matches[2].Trim(), "Process")
   }
@@ -236,12 +237,12 @@ $env:AGENT_MODEL</code></pre>
 <ul>
   <li><strong>No deje bucles corriendo.</strong> Un <code>while</code> sin freno agota los US$5.50 del grupo en minutos.</li>
   <li><strong>Historiales cortos.</strong> Cada mensaje reenvía toda la conversación; si crece, cada llamada cuesta más.</li>
-  <li><strong>Pruebe con <code>flash-lite</code>.</strong> Cambie a un modelo caro solo cuando el flujo ya funcione.</li>
-  <li><strong>El corte es automático.</strong> Al agotarse el crédito, la llave deja de responder con error 429. No hay cargos sorpresa.</li>
+  <li><strong>No cambie de modelo.</strong> Todo el taller está calibrado a <code>gemini-3.5-flash-lite</code>, el más económico de su clase.</li>
+  <li><strong>El corte es automático.</strong> Al agotarse el crédito, la llave deja de responder (error 402 o 429). No hay cargos sorpresa.</li>
 </ul>
 
 <div class="box ok">
-<p><strong>Fin de la Parte 1.</strong> Al llegar aquí usted debe tener: la llave verificada, Onyx Lite respondiendo con citas de sus PDFs, y el objetivo controlable listo para atacar en la Hora 2.</p>
+<p><strong>Fin de la Parte 1.</strong> Al llegar aquí usted debe tener: la llave verificada, Onyx respondiendo con sus herramientas MCP (o el agente CLI de la Ruta B), y el objetivo controlable listo para atacar en la Hora 2.</p>
 </div>
 
 <footer>

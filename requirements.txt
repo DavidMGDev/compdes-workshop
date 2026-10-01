@@ -1,11 +1,13 @@
 # Dependencias base del taller (Hora 1 y labs manuales).
-# PyRIT y Garak van en SUS PROPIOS entornos virtuales (ver docs/SETUP.md):
-# tienen conflictos de dependencias con estas y entre sí.
+# Garak va en SU PROPIO entorno virtual (ver docs/SETUP.md): tiene conflictos
+# de dependencias con estas.
 #
 # Versiones fijadas al piso que se probó; «>=» permite parches menores.
 openai>=1.30
 # >=1.8: incluye el transporte streamable-http que usa Onyx (modo --http).
-mcp>=1.8
+# <2: mcp 2.0 (28-jul-2026) renombró FastMCP a MCPServer y movió host/port;
+# el taller está escrito contra la línea 1.x, que sigue mantenida (probado: 1.30).
+mcp>=1.8,<2
 pydantic>=2.7
 # psycopg2-binary trae el driver de Postgres ya compilado (sin necesitar
 # compilador ni libpq en la máquina del asistente — clave en Windows).

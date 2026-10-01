@@ -67,7 +67,7 @@ for cmd, obligatorio in [("docker", True), ("git", True), ("node", False)]:
     elif obligatorio:
         bad(f"'{cmd}' no está instalado (obligatorio)")
     else:
-        warn(f"'{cmd}' no está instalado (opcional: solo para labs de Garak/Promptfoo)")
+        warn(f"'{cmd}' no está instalado (opcional: solo para Promptfoo, defensa 3.7)")
 
 
 # --- 2. Estructura de archivos del repo ----------------------------------
@@ -104,8 +104,8 @@ else:
         bad("OPENAI_API_KEY sin configurar en el .env")
     else:
         ok("OPENAI_API_KEY presente")
-        if not valores["OPENAI_API_KEY"].startswith("AQ."):
-            warn("la llave no empieza con 'AQ.' (las modernas sí lo hacen)")
+        if not valores["OPENAI_API_KEY"].startswith(("AQ.", "AIza")):
+            warn("la llave no empieza con 'AQ.' ni 'AIza' (las de AI Studio sí)")
     for req in ("OPENAI_BASE_URL", "AGENT_MODEL"):
         if valores.get(req):
             ok(f"{req} = {valores[req]}")

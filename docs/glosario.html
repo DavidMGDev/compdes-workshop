@@ -119,7 +119,7 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
   <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Setup + todo</span></div>
   <span class="name">Docker / Docker Compose</span>
   <p class="what">Ejecuta programas en "contenedores" aislados, sin instalarlos a mano.</p>
-  <p class="use"><b>Aquí:</b> levanta la base de datos de la PyME <b>y el propio Onyx Lite</b>. Onyx corre enteramente sobre Docker.</p>
+  <p class="use"><b>Aquí:</b> levanta la base de datos de la PyME <b>y el propio Onyx</b>. Onyx corre enteramente sobre Docker.</p>
 </div>
 
 <div class="card">
@@ -141,9 +141,9 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
 
 <div class="card">
   <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Hora 1–3</span></div>
-  <span class="name">Onyx (Lite, Community Edition)</span>
+  <span class="name">Onyx (Standard, Community Edition)</span>
   <p class="what">Plataforma de IA de código abierto (antes <i>Danswer</i>, licencia MIT): chat web, RAG sobre documentos y agentes con herramientas.</p>
-  <p class="use"><b>Aquí:</b> <b>es el agente de la PyME</b>. Se abre en <code>localhost:3000</code> y es la cara "de producto" del taller. Modo <b>Lite</b> = ligero (~2 GB RAM).</p>
+  <p class="use"><b>Aquí:</b> <b>es el agente de la PyME</b>. Se abre en <code>localhost:3000</code> y es la cara "de producto" del taller. Modo <b>Standard</b>: 10 GB de RAM como mínimo (16 recomendados).</p>
 </div>
 
 <div class="card">
@@ -157,13 +157,13 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
   <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Todo</span></div>
   <span class="name">Endpoint compatible con OpenAI</span>
   <p class="what">Una interfaz estándar; permite que el mismo código hable con Gemini, OpenAI u otros sin cambios.</p>
-  <p class="use"><b>Aquí:</b> es cómo Onyx (y el agente CLI) se conectan a Gemini: <code>…/v1beta/openai/</code>.</p>
+  <p class="use"><b>Aquí:</b> es cómo el agente CLI (Ruta B) se conecta a Gemini: <code>…/v1beta/openai/</code>. Onyx usa el proveedor nativo <code>gemini</code>.</p>
 </div>
 
 <div class="card">
   <div class="badges"><span class="badge nucleo">Núcleo</span><span class="badge phase">Hora 1–3</span></div>
   <span class="name">MCP (Model Context Protocol)</span>
-  <p class="what">Estándar abierto (de Anthropic) para conectar un agente con "herramientas" externas.</p>
+  <p class="what">Estándar abierto (creado por Anthropic) para conectar un agente con "herramientas" externas.</p>
   <p class="use"><b>Aquí:</b> el corazón del taller. Nuestro servidor MCP expone tres herramientas (SQL, actualizar stock, validar enlace). Onyx las registra como una <b>Acción MCP</b> apuntando a <code>host.docker.internal:9000/mcp</code>.</p>
 </div>
 
@@ -185,7 +185,7 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
   <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Todo</span></div>
   <span class="name">PostgreSQL</span>
   <p class="what">Base de datos relacional.</p>
-  <p class="use"><b>Aquí:</b> los "datos joya" de la PyME (inventario, clientes, columnas sensibles). Onyx la consulta <b>a través de las herramientas MCP</b>; además Onyx Lite guarda su propio estado en Postgres.</p>
+  <p class="use"><b>Aquí:</b> los "datos joya" de la PyME (inventario, clientes, columnas sensibles). Onyx la consulta <b>a través de las herramientas MCP</b>; además Onyx guarda su propio estado en otro Postgres.</p>
 </div>
 
 <div class="card">
@@ -216,7 +216,7 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
   <div class="badges"><span class="badge nucleo">Ataca a Onyx</span><span class="badge phase">Hora 2</span></div>
   <span class="name">PyRIT</span>
   <p class="what">Herramienta de Microsoft para <b>red-teaming automatizado</b> de IA generativa.</p>
-  <p class="use"><b>Aquí:</b> automatiza el jailbreak multi-turno <i>Crescendo</i> (Lab 2.3) contra la API de Onyx o el wrapper HTTP.</p>
+  <p class="use"><b>Aquí:</b> referencia. Su ataque <i>Crescendo</i> genera con un segundo LLM los turnos que en el Lab 2.3 se escriben a mano; no se instala en el taller.</p>
 </div>
 
 <div class="card">
@@ -247,7 +247,7 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
   <div class="badges"><span class="badge soporte">Soporte</span><span class="badge phase">Hora 3</span></div>
   <span class="name">Herramientas MCP endurecidas + defensas</span>
   <p class="what">Servidor MCP seguro, roles SQL de mínimo privilegio, aprobación humana (HITL), enrutador semántico y fijado de descriptores.</p>
-  <p class="use"><b>Aquí:</b> se re-registra el servidor MCP seguro en Onyx y se repiten los ataques → ahora fallan. Protegen justamente las herramientas que Onyx invoca.</p>
+  <p class="use"><b>Aquí:</b> se repiten los ataques contra el agente blindado (<code>defenses/agent_seguro.py</code>) → ahora fallan. En Onyx aplican las defensas del servidor MCP y de la base: se relanza el servidor seguro con <code>--http</code> y se pulsa <i>Refresh tools</i>.</p>
 </div>
 
 <div class="card">
@@ -261,7 +261,7 @@ despliega, y todo lo demás es lo que lo hace útil (y atacable).</p>
   <div class="badges"><span class="badge marco">Independiente</span><span class="badge phase">Hora 2–3 (opcional)</span></div>
   <span class="name">Node.js</span>
   <p class="what">Entorno de ejecución de JavaScript.</p>
-  <p class="use"><b>Aquí:</b> solo se necesita para instalar/correr Garak y Promptfoo. No participa en Onyx ni en la Hora 1.</p>
+  <p class="use"><b>Aquí:</b> solo se necesita (versión 22+) para correr Promptfoo. Garak es de Python. No participa en Onyx ni en la Hora 1.</p>
 </div>
 
 <div class="note">

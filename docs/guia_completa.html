@@ -170,7 +170,7 @@ instaladas:</p>
   <tr><td><strong>Python</strong> (3.11+)</td><td>Ejecuta el código del agente y los scripts</td><td>Sí</td></tr>
   <tr><td><strong>Docker</strong></td><td>Levanta la base de datos de la PyME en un contenedor aislado</td><td>Sí</td></tr>
   <tr><td><strong>Git</strong></td><td>Descarga el código del taller desde GitHub</td><td>Sí</td></tr>
-  <tr><td><strong>Node.js</strong> (20+)</td><td>Solo para las herramientas de las Horas 2 y 3</td><td>Opcional</td></tr>
+  <tr><td><strong>Node.js</strong> (22+)</td><td>Solo para Promptfoo (Hora 3, defensa 3.7)</td><td>Opcional</td></tr>
 </table>
 </div>
 
@@ -272,7 +272,7 @@ esta línea:</p>
 <div class="code"><pre><code>OPENAI_API_KEY=PEGUE_SU_LLAVE_AQUI</code></pre></div>
 
 <p>Reemplace <code>PEGUE_SU_LLAVE_AQUI</code> por la llave que le dio el tutor
-(empieza con <code>AQ.</code>). Guarde el archivo. Debe quedar así:</p>
+(empieza con <code>AQ.</code>; las llaves antiguas, con <code>AIza</code>). Guarde el archivo. Debe quedar así:</p>
 
 <div class="code"><pre><code>OPENAI_API_KEY=AQ.Ab8RN6...el-resto-de-su-llave</code></pre></div>
 
@@ -396,7 +396,7 @@ volver a levantar todo con el Paso 6 cuando quiera.</p>
   <tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr>
   <tr><td><code>python: command not found</code></td><td>Python no quedó en el PATH</td><td>En Windows, reinstale marcando "Add Python to PATH". En Linux use <code>python3</code>.</td></tr>
   <tr><td><code>check_key.py</code> → <code>401</code></td><td>Llave mal copiada</td><td>Cópiela completa, sin espacios ni saltos de línea, en el <code>.env</code>.</td></tr>
-  <tr><td><code>check_key.py</code> → <code>429 ... credits are depleted</code></td><td>El presupuesto del grupo se agotó</td><td>Avise al tutor. No es un error de su código.</td></tr>
+  <tr><td><code>check_key.py</code> → <code>402</code> o <code>429 ... credits are depleted</code></td><td>El presupuesto del grupo se agotó</td><td>Avise al tutor. No es un error de su código.</td></tr>
   <tr><td><code>check_key.py</code> → <code>404 ... model</code></td><td>El <code>AGENT_MODEL</code> del <code>.env</code> se modificó</td><td>Debe decir <code>gemini-3.5-flash-lite</code>.</td></tr>
   <tr><td><code>docker: ... daemon ... not running</code></td><td>Docker no está encendido</td><td>En Windows, abra Docker Desktop y espere a "Engine running".</td></tr>
   <tr><td><code>docker compose</code> → <code>permission denied</code> (Linux)</td><td>Falta el permiso del grupo docker</td><td><code>sudo usermod -aG docker $USER</code> y vuelva a iniciar sesión.</td></tr>

@@ -16,7 +16,7 @@ Necesita, instalados y en el PATH:
 |---|---|---|
 | Python | 3.11+ | todo el código del taller |
 | Docker | 24+ | la base de datos y (Hora 1) Onyx |
-| Node.js | 20+ | *opcional*, solo Garak/Promptfoo (Horas 2-3) |
+| Node.js | 22+ | *opcional*, solo Promptfoo (defensa 3.7) |
 
 Compruebe:
 ```bash
@@ -29,7 +29,7 @@ docker --version
 ## Paso 1 — Obtener el código
 
 ```bash
-git clone <URL-DEL-REPO> compdes-workshop
+git clone https://github.com/DavidMGDev/compdes-workshop.git
 cd compdes-workshop
 ```
 
@@ -79,7 +79,7 @@ Copy-Item .env.example .env
 ```
 
 Abra `.env` en un editor y pegue su llave en `OPENAI_API_KEY`. La llave se la
-entrega el tutor y empieza con `AQ.`.
+entrega el tutor (empieza con `AQ.`; las llaves antiguas, con `AIza`).
 
 > **Nunca** suba `.env` a git. Ya está en `.gitignore`.
 
@@ -102,7 +102,7 @@ Si `check_key.py` dice `[OK] FUNCIONA`, está listo.
 | Mensaje | Causa | Solución |
 |---|---|---|
 | `401 UNAUTHENTICATED` | llave mal copiada | cópiela completa, sin espacios |
-| `429 ... credits are depleted` | presupuesto del grupo agotado | avise al tutor |
+| `402` o `429 ... credits are depleted` | presupuesto del grupo agotado | avise al tutor |
 | `404 ... model` | `AGENT_MODEL` inválido | revise el nombre en `.env` |
 | `ModuleNotFoundError` | venv no activado o deps sin instalar | repita pasos 2 y 3 |
 
@@ -123,6 +123,27 @@ python target/make_policies.py
 # El agente
 python target/agent/agent.py
 ```
+
+---
+
+## Paso 7 — Comprobar que todo el taller funciona (opcional)
+
+La suite de `tests/` recorre el taller completo. Con la base arriba y el venv
+activado:
+
+```bash
+python -m unittest discover tests            # sin gastar llave (~1 min)
+TALLER_LIVE=1 python -m unittest discover tests   # + Hora 1, ataques y defensas contra el modelo (~1.5 centavos)
+python tests/costo.py                        # cuánto costó, por fase
+```
+En PowerShell, la segunda línea es `$env:TALLER_LIVE="1"; python -m unittest discover tests`.
+
+## Entornos aparte para las Horas 2 y 3
+
+- **Garak (Lab 2.5):** va en su propio venv con Python 3.11–3.13; ver
+  [`../attacks/README.md`](../attacks/README.md).
+- **Promptfoo (defensa 3.7):** no se instala; se corre con `npx` (Node.js 22+);
+  ver [`../defenses/README.md`](../defenses/README.md).
 
 ---
 

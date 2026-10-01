@@ -55,10 +55,11 @@ def main():
     if not base:
         print("[X] Falta OPENAI_BASE_URL en el .env.")
         sys.exit(1)
-    if not key.startswith("AQ."):
-        # No es fatal, pero sí sospechoso: las llaves modernas empiezan con AQ.
-        print(f"[!] Su llave no empieza con 'AQ.' (empieza con '{key[:4]}...').")
-        print("  Las llaves modernas de AI Studio empiezan con 'AQ.'. Continúo igual.")
+    if not key.startswith(("AQ.", "AIza")):
+        # No es fatal, pero sí sospechoso: las llaves nuevas de AI Studio
+        # empiezan con AQ. y las anteriores con AIza (ambas funcionan).
+        print(f"[!] Su llave no parece de AI Studio (empieza con '{key[:4]}...').")
+        print("  Suelen empezar con 'AQ.' o 'AIza'. Continúo igual.")
 
     # --- La llamada de prueba (formato OpenAI chat completions) -----------
     url = f"{base}/chat/completions"
@@ -92,7 +93,9 @@ def main():
         print(f"[X] Error HTTP {e.code}: {msg}")
         if e.code == 401:
             print("  -> La llave está mal copiada o incompleta. Cópiela de nuevo.")
-        elif e.code == 429 and "credit" in msg.lower():
+        elif e.code == 402 or (e.code == 429 and "credit" in msg.lower()):
+            # Crédito prepago en $0. Google lo documenta como 402 Payment
+            # Required; antes llegaba como 429 "credits are depleted".
             print("  -> El presupuesto del grupo se agotó. Avise al tutor.")
         elif e.code == 429:
             print("  -> Límite de tasa: espere unos segundos y reintente.")
